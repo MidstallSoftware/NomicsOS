@@ -1,7 +1,9 @@
+import 'dart:convert';
 import 'dart:io' as io;
 
 import 'package:args/args.dart';
 import 'package:posix/posix.dart';
+import 'package:shelf_cors_headers/shelf_cors_headers.dart';
 import 'package:shelf_hotreload/shelf_hotreload.dart';
 import 'package:shelf_router/shelf_router.dart';
 import 'package:shelf/shelf.dart';
@@ -16,20 +18,24 @@ class Configuration {
   final io.InternetAddress? _address;
   final int? _port;
   final bool? _hotReload;
+  final String? _basePath;
 
   const Configuration({
     io.InternetAddress? address,
     int? port,
     bool? hotReload,
+    String? basePath,
   })  : _address = address,
         _port = port,
-        _hotReload = hotReload;
+        _hotReload = hotReload,
+        _basePath = basePath;
 
   io.InternetAddress get address =>
       _address ??
       io.InternetAddress('0.0.0.0', type: io.InternetAddressType.IPv4);
   int get port => _port ?? 8080;
   bool get hotReload => _hotReload ?? canHotReload();
+  String get basePath => _basePath ?? '/';
 
   static Configuration fromArgs(List<String> args) {
     const defaults = const Configuration();
@@ -39,7 +45,10 @@ class Configuration {
           defaultsTo: defaults.address.address)
       ..addOption('port',
           help: 'Sets the port to listen on',
-          defaultsTo: defaults.port.toString());
+          defaultsTo: defaults.port.toString())
+      ..addOption('base-path',
+          help: 'Sets the base path',
+          defaultsTo: defaults.basePath);
 
     if (canHotReload()) {
       parser.addFlag('hot-reload',
@@ -78,6 +87,7 @@ class Configuration {
       address: v_address,
       port: v_port,
       hotReload: v_hotReload,
+      basePath: results.option('base-path'),
     );
   }
 }
@@ -97,7 +107,18 @@ void main(List<String> args) {
 Future<io.HttpServer> createServer(Configuration config) async {
   var app = Router();
 
-  var handler = const Pipeline().addMiddleware(logRequests()).addHandler(app);
+  app.get(config.basePath, (req) {
+    return Response.ok(json.encode({
+      'data': 'AAAA',
+    }), headers: {
+      'Content-Type': 'application/json',
+    });
+  });
+
+  var handler = const Pipeline()
+      .addMiddleware(logRequests())
+      .addMiddleware(corsHeaders())
+      .addHandler(app);
 
   if (config.address.type == io.InternetAddressType.unix) {
     final sock = io.File(config.address.address);
@@ -108,7 +129,8 @@ Future<io.HttpServer> createServer(Configuration config) async {
 
   var server = await shelf_io.serve(handler, config.address, config.port);
 
-  if (io.Platform.isLinux && config.address.type == io.InternetAddressType.unix) {
+  if (io.Platform.isLinux &&
+      config.address.type == io.InternetAddressType.unix) {
     chmod(config.address.address, "666");
   }
 

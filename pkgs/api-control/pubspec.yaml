@@ -12,6 +12,7 @@ dependencies:
   shelf_router: ^1.1.4
   shelf_hotreload: ^1.5.0
   posix: ^6.0.1
+  shelf_cors_headers: ^0.1.5
 
 executables:
   nomics-api-control: nomics-api-control
