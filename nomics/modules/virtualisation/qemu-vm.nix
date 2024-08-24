@@ -17,6 +17,7 @@
             lib.generators.toJSON { } (config.nomics // { hostname = config.networking.hostName; })
           )
         } /etc/nixos/config.json
+        ${lib.getExe pkgs.git} init -b master /etc/nixos
       fi
     '';
 
