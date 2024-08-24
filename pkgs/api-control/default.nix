@@ -19,6 +19,10 @@ buildDartApplication {
     "bin/nomics-api-control" = "bin/nomics-api-control.dart";
   };
 
+  dartCompileFlags = [
+    "-Dflags.hot-reload=false"
+  ];
+
   sdkSourceBuilders = {
     # https://github.com/dart-lang/pub/blob/e1fbda73d1ac597474b82882ee0bf6ecea5df108/lib/src/sdk/dart.dart#L80
     "dart" = name: runCommand "dart-sdk-${name}" { passthru.packageRoot = "."; } ''

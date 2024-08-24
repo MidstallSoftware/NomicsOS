@@ -13,33 +13,60 @@
       nixpkgs,
       flake-utils,
       systems,
-    }:
+    }@imports:
     let
       libVersionInfoOverlay = import ./lib/flake-version-info.nix self;
 
-      lib = ((nixpkgs.lib.extend (import ./lib/overlay.nix {
-        inherit nixpkgs;
-      })).extend (libVersionInfoOverlay)).extend (
-        f: p: {
-          nomics = p.nomics // {
-            os = import ./nomics/lib { lib = f; };
-          };
-          nomicsSystem =
-            args:
-            p.nixosSystem (
-              {
-                baseModules = import ./nomics/modules/module-list.nix { inherit nixpkgs; };
-                modules = args.modules or [ ] ++ [
+      lib =
+        ((nixpkgs.lib.extend (import ./lib/overlay.nix { inherit nixpkgs; })).extend (
+          libVersionInfoOverlay
+        )).extend
+          (
+            f: p: {
+              nomics = p.nomics // {
+                os = import ./nomics/lib { lib = f; };
+
+                genSystems =
                   {
-                    nixpkgs.overlays = [ self.overlays.default ];
-                    nixpkgs.flake.source = lib.mkForce self.outPath;
+                    systems ? (import imports.systems),
+                    modules ? [ ],
+                    config ? { },
+                  }:
+                  f.genAttrs (f.map (v: "${v}/${config.hostname}") systems) (
+                    attrName:
+                    let
+                      system = f.removeSuffix "/${config.hostname}" attrName;
+                    in
+                    f.nomicsSystem {
+                      modules = [
+                        (
+                          { lib, ... }:
+                          {
+                            nixpkgs.hostPlatform = system;
+                            networking.hostName = config.hostname;
+                            nomics = lib.removeAttrs config [ "hostname" ];
+                          }
+                        )
+                      ] ++ modules;
+                    }
+                  );
+              };
+              nomicsSystem =
+                args:
+                p.nixosSystem (
+                  {
+                    baseModules = import ./nomics/modules/module-list.nix { inherit nixpkgs; };
+                    modules = args.modules or [ ] ++ [
+                      {
+                        nixpkgs.overlays = [ self.overlays.default ];
+                        nixpkgs.flake.source = lib.mkForce self.outPath;
+                      }
+                    ];
                   }
-                ];
-              }
-              // builtins.removeAttrs args [ "modules" ]
-            );
-        }
-      );
+                  // builtins.removeAttrs args [ "modules" ]
+                );
+            }
+          );
     in
     flake-utils.lib.eachSystem (import systems) (
       system:
@@ -68,17 +95,14 @@
 
       nixosModules.default = import ./nomics/modules/default.nix;
 
-      nixosConfigurations = lib.genAttrs (lib.map (p: "${p}/qemu-vm") (import systems)) (
-        attrName:
-        let
-          system = lib.removeSuffix "/qemu-vm" attrName;
-        in
-        lib.nomicsSystem {
-          modules = [
-            { nixpkgs.hostPlatform = system; }
-            ./nomics/modules/virtualisation/qemu-vm.nix
-          ];
-        }
-      );
+      nixosConfigurations = lib.nomics.genSystems {
+        modules = [ ./nomics/modules/virtualisation/qemu-vm.nix ];
+        config.hostname = "qemu-vm";
+      };
+
+      templates.default = {
+        path = ./nomics/template;
+        description = "A basic Nomics OS setup";
+      };
     };
 }

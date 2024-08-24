@@ -1,10 +1,25 @@
-{ lib, ... }:
 {
-  imports = [
-    "${lib.nomics.nixpkgs}/nixos/modules/virtualisation/qemu-vm.nix"
-  ];
+  config,
+  lib,
+  pkgs,
+  ...
+}:
+{
+  imports = [ "${lib.nomics.nixpkgs}/nixos/modules/virtualisation/qemu-vm.nix" ];
 
   config = {
+    boot.postBootCommands = ''
+      if ! [ -e /etc/nixos/flake.nix ] || ! [ -e /etc/nixos/config.json ]; then
+        rm -rf /etc/nixos
+        cp -r ${../../template} /etc/nixos
+        cp ${
+          pkgs.writeText "nomics-config.json" (
+            lib.generators.toJSON { } (config.nomics // { hostname = config.networking.hostName; })
+          )
+        } /etc/nixos/config.json
+      fi
+    '';
+
     nomics.services.web-client.iface = "eth0";
 
     virtualisation.qemu.networkingOptions = lib.mkForce [
