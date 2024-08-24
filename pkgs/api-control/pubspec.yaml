@@ -1,0 +1,17 @@
+name: nomics_api_control
+description: NomicsOS API Control server
+repository: https://github.com/MidstallSoftware/NomicsOS/tree/master/pkgs/api-control
+publish_to: none
+
+environment:
+  sdk: ^3.5.1
+
+dependencies:
+  shelf: ^1.4.2
+  args: ^2.5.0
+  shelf_router: ^1.1.4
+  shelf_hotreload: ^1.5.0
+  posix: ^6.0.1
+
+executables:
+  nomics-api-control: nomics-api-control

@@ -41,7 +41,7 @@ pkgs: prev: with pkgs; {
         )
       );
     }
-    // lib.genAttrs [ "web-client" ] (pkg: {
+    // lib.genAttrs [ "api-control" "web-client" ] (pkg: {
       default = self.callPackage ./${pkg} { };
       devShell = self.callPackage ./${pkg}/shell.nix { };
     })
