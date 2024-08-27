@@ -1,10 +1,10 @@
 { lib }:
-{
+rec {
   importJSONModule = p: { lib, ... }:
     let
       config = lib.importJSON p;
     in {
-      imports = lib.map importJSON (config.imports or []);
+      imports = lib.map importJSONModule (config.imports or []);
 
       config = lib.mkMerge [
         {

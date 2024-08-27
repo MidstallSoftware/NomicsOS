@@ -15,6 +15,9 @@
     {
       nixosConfigurations = nomics.lib.genSystems {
         systems = import systems;
+        modules = [
+          { sops.defaultSopsFile = ./secrets.yaml; }
+        ];
         config = nomics.lib.importJSON ./config.json;
       };
     };

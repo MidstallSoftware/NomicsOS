@@ -6,10 +6,10 @@
     ./services/web-client.nix
   ];
 
-  boot.postBootCommands = ''
-    chmod 0 /etc/nixos/config-users.json
-    chown root:root /etc/nixos/config-users.json
-  '';
+  sops.age = {
+    keyFile = "/var/lib/nomics/secret-key.txt";
+    generateKey = true;
+  };
 
   services.nginx.enable = true;
   nix.settings.experimental-features = [ "nix-command" "flakes" ];

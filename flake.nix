@@ -5,6 +5,7 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
     systems.url = "github:nix-systems/default-linux";
+    sops-nix.url = "github:Mic92/sops-nix";
   };
 
   outputs =
@@ -13,6 +14,7 @@
       nixpkgs,
       flake-utils,
       systems,
+      sops-nix,
     }@imports:
     let
       libVersionInfoOverlay = import ./lib/flake-version-info.nix self;
@@ -55,10 +57,13 @@
                 args:
                 p.nixosSystem (
                   {
-                    baseModules = import ./nomics/modules/module-list.nix { inherit nixpkgs; };
+                    baseModules = import ./nomics/modules/module-list.nix { inherit nixpkgs sops-nix; };
                     modules = args.modules or [ ] ++ [
                       {
-                        nixpkgs.overlays = [ self.overlays.default ];
+                        nixpkgs.overlays = [
+                          self.overlays.default
+                          sops-nix.overlays.default
+                        ];
                         nixpkgs.flake.source = lib.mkForce self.outPath;
                       }
                     ];
@@ -74,6 +79,7 @@
         pkgs = nixpkgs.legacyPackages.${system}.appendOverlays [
           (f: p: { inherit lib; })
           self.overlays.default
+          sops-nix.overlays.default
         ];
 
         packages = lib.genAttrs pkgs.nomics.__packages (p: pkgs.nomics.${p});
