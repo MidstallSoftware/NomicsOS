@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:args/args.dart';
+import 'package:postgres/postgres.dart';
 
 const kSupportsHotReload =
     bool.fromEnvironment('flags.hot-reload', defaultValue: true);
@@ -12,16 +13,19 @@ class Configuration {
   final int? _port;
   final bool? _hotReload;
   final String? _basePath;
+  final Endpoint? _pgsqlEndpoint;
 
   const Configuration({
     InternetAddress? address,
     int? port,
     bool? hotReload,
     String? basePath,
+    Endpoint? pgsqlEndpoint,
   })  : _address = address,
         _port = port,
         _hotReload = hotReload,
-        _basePath = basePath;
+        _basePath = basePath,
+        _pgsqlEndpoint = pgsqlEndpoint;
 
   InternetAddress get address =>
       _address ??
@@ -29,6 +33,7 @@ class Configuration {
   int get port => _port ?? 8080;
   bool get hotReload => _hotReload ?? canHotReload();
   String get basePath => _basePath ?? '/';
+  Endpoint get pgsqlEndpoint => _pgsqlEndpoint ?? Endpoint(host: 'localhost', database: 'nomics');
 
   static Configuration fromArgs(List<String> args) {
     const defaults = const Configuration();
@@ -41,7 +46,19 @@ class Configuration {
           defaultsTo: defaults.port.toString())
       ..addOption('base-path',
           help: 'Sets the base path',
-          defaultsTo: defaults.basePath);
+          defaultsTo: defaults.basePath)
+      ..addOption('pgsql-host',
+          help: 'Sets the PostgresQL host',
+          defaultsTo: defaults.pgsqlEndpoint.host)
+      ..addOption('pgsql-database',
+          help: 'Sets the PostgresQL database',
+          defaultsTo: defaults.pgsqlEndpoint.database)
+      ..addOption('pgsql-username',
+          help: 'Sets the PostgresQL username',
+          defaultsTo: defaults.pgsqlEndpoint.username)
+      ..addOption('pgsql-password',
+          help: 'Sets the PostgresQL password',
+          defaultsTo: defaults.pgsqlEndpoint.password);
 
     if (canHotReload()) {
       parser.addFlag('hot-reload',
@@ -76,11 +93,22 @@ class Configuration {
       v_hotReload = results.flag('hot-reload');
     }
 
+    final arg_pgsqlHost = results.option('pgsql-host');
+    final arg_pgsqlDatabse = results.option('pgsql-database');
+    final arg_pgsqlUsername = results.option('pgsql-username');
+    final arg_pgsqlPassword = results.option('pgsql-password');
+
     return Configuration(
       address: v_address,
       port: v_port,
       hotReload: v_hotReload,
       basePath: results.option('base-path'),
+      pgsqlEndpoint: Endpoint(
+        host: arg_pgsqlHost ?? defaults.pgsqlEndpoint.host,
+        database: arg_pgsqlDatabse ?? defaults.pgsqlEndpoint.database,
+        username: arg_pgsqlUsername ?? defaults.pgsqlEndpoint.username,
+        password: arg_pgsqlPassword ?? defaults.pgsqlEndpoint.password,
+      ),
     );
   }
 }

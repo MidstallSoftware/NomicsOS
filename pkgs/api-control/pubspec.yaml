@@ -14,6 +14,7 @@ dependencies:
   posix: ^6.0.1
   shelf_cors_headers: ^0.1.5
   path: ^1.9.0
+  postgres: ^3.3.0
 
 executables:
   nomics-api-control: nomics-api-control
