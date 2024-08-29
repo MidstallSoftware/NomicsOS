@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { FormEvent, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSignIn } from '../contexts/User'
 import User from '../../types/user'
@@ -10,7 +10,7 @@ const LogInPage = () => {
   const { signIn } = useSignIn();
   const nav = useNavigate();
 
-  const handleSubmit = (ev) => {
+  const handleSubmit = (ev: FormEvent) => {
     ev.preventDefault();
     setError(null);
 

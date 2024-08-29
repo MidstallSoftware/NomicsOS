@@ -5,25 +5,30 @@ class User {
   name: string;
   createdAt: Date;
   displayName?: string;
+  authKey?: string;
 
-  constructor({ id, name, createdAt, displayName }: {
+  constructor({ id, name, createdAt, displayName, authKey }: {
     id: number,
     name: string,
     createdAt: Date,
     displayName?: string,
+    authKey?: string,
   }) {
     this.id = id;
     this.name = name;
     this.createdAt = createdAt;
     this.displayName = displayName;
+    this.authKey = authKey;
   }
 
   static async login(name: string, password: string): Promise<User> {
+    const authKey = btoa(`${name}:${password}`);
+
     const resp = await fetch(`${API_URI}/user/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json; charset=utf-8',
-        'Authorization': `Basic ${btoa(`${name}:${password}`)}`,
+        'Authorization': `Basic ${authKey}`,
       },
     });
 
@@ -38,6 +43,7 @@ class User {
       name: data['name'],
       createdAt: new Date(data['createdAt']),
       displayName: data['displayName'],
+      authKey,
     });
   }
 }
