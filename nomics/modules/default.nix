@@ -1,5 +1,7 @@
-{ pkgs, ... }: {
+{ pkgs, ... }:
+{
   imports = [
+    ./options.nix
     ./users.nix
     ./version.nix
     ./services/api-control.nix
@@ -14,5 +16,8 @@
   };
 
   services.nginx.enable = true;
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.settings.experimental-features = [
+    "nix-command"
+    "flakes"
+  ];
 }

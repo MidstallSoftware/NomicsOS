@@ -25,6 +25,8 @@ in
           };
         };
       });
+  } // {
+    pageId = "users";
   };
 
   config = {
