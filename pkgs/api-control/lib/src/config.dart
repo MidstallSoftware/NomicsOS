@@ -15,6 +15,7 @@ class Configuration {
   final String? _basePath;
   final Endpoint? _pgsqlEndpoint;
   final ConnectionSettings? _pgsqlSettings;
+  final String? _rootJsonModule;
 
   const Configuration({
     InternetAddress? address,
@@ -23,12 +24,14 @@ class Configuration {
     String? basePath,
     Endpoint? pgsqlEndpoint,
     ConnectionSettings? pgsqlSettings,
+    String? rootJsonModule,
   })  : _address = address,
         _port = port,
         _hotReload = hotReload,
         _basePath = basePath,
         _pgsqlEndpoint = pgsqlEndpoint,
-        _pgsqlSettings = pgsqlSettings;
+        _pgsqlSettings = pgsqlSettings,
+        _rootJsonModule = rootJsonModule;
 
   InternetAddress get address =>
       _address ?? InternetAddress('0.0.0.0', type: InternetAddressType.IPv4);
@@ -39,6 +42,7 @@ class Configuration {
       _pgsqlEndpoint ?? Endpoint(host: 'localhost', database: 'nomics');
   ConnectionSettings get pgsqlSettings =>
       _pgsqlSettings ?? ConnectionSettings(sslMode: SslMode.disable);
+  String get rootJsonModule => _rootJsonModule ?? '/etc/nixos/config.json';
 
   static Configuration fromArgs(List<String> args) {
     const defaults = const Configuration();
@@ -68,7 +72,10 @@ class Configuration {
           defaultsTo: defaults.pgsqlEndpoint.password)
       ..addFlag('pgsql-socket',
           help: 'Specify that the PostgresQL host is a socket',
-          defaultsTo: defaults.pgsqlEndpoint.isUnixSocket);
+          defaultsTo: defaults.pgsqlEndpoint.isUnixSocket)
+      ..addOption('root-json-module',
+          help: 'Sets the root JSON module to manage config',
+          defaultsTo: defaults.rootJsonModule);
 
     if (canHotReload()) {
       parser.addFlag('hot-reload',
@@ -127,6 +134,8 @@ class Configuration {
         port: v_pgsqlPort ?? defaults.pgsqlEndpoint.port,
         isUnixSocket: results.flag('pgsql-socket'),
       ),
+      rootJsonModule:
+          results.option('root-json-module') ?? defaults.rootJsonModule,
     );
   }
 }

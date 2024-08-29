@@ -27,6 +27,17 @@ class User {
 
   bool checkPassword(String input) => BCrypt.checkpw(input, _password);
 
+  Future<void> sync() async {
+    await db.execute(
+        Sql.named(
+            'UPDATE users SET display_name=@display, password=@password WHERE id=@id'),
+        parameters: {
+          'display': displayName,
+          'id': id,
+          'password': _password,
+        });
+  }
+
   static Future<void> createTable(
     DatabaseContext db, {
     bool ifNotExists = true,
@@ -45,41 +56,44 @@ class User {
 
   static Future<User> create(
     DatabaseContext db, {
-      required String name,
-      required String password,
-      String? displayName,
-    }) async {
-      final hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+    required String name,
+    required String password,
+    String? displayName,
+  }) async {
+    final hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
 
-      await db.execute(
-        Sql.named('INSERT INTO users (name, password, display_name) VALUES (@name, @password, @display)'),
-        parameters: {
-          'name': name,
-          'password': hashedPassword,
-          'display': displayName,
-        },
-      );
+    await db.execute(
+      Sql.named(
+          'INSERT INTO users (name, password, display_name) VALUES (@name, @password, @display)'),
+      parameters: {
+        'name': name,
+        'password': hashedPassword,
+        'display': displayName,
+      },
+    );
 
-      final results = await db.execute(
-        Sql.named('SELECT id,created_at FROM users WHERE name=@name'),
-        parameters: {
-          'name': name,
-        },
-      );
+    final results = await db.execute(
+      Sql.named('SELECT id,created_at FROM users WHERE name=@name'),
+      parameters: {
+        'name': name,
+      },
+    );
 
-      final result = results[0];
-      return User(db,
-        id: result[0]! as int,
-        name: name,
-        password: hashedPassword,
-        displayName: displayName,
-        createdAt: result[1]! as DateTime,
-      );
-    }
+    final result = results[0];
+    return User(
+      db,
+      id: result[0]! as int,
+      name: name,
+      password: hashedPassword,
+      displayName: displayName,
+      createdAt: result[1]! as DateTime,
+    );
+  }
 
   static Future<User?> findUser(DatabaseContext db, String name) async {
     final results = await db.execute(
-      Sql.named('SELECT id,display_name,password,created_at FROM users WHERE name=@name'),
+      Sql.named(
+          'SELECT id,display_name,password,created_at FROM users WHERE name=@name'),
       parameters: {
         'name': name,
       },
@@ -91,7 +105,8 @@ class User {
 
     final result = results[0];
 
-    return User(db,
+    return User(
+      db,
       name: name,
       id: result[0]! as int,
       displayName: result[1] as String?,

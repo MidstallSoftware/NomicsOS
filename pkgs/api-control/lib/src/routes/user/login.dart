@@ -60,7 +60,8 @@ Handler createUserLoginRoute({
       }
 
       final user = await User.findUser(
-        db, params[0],
+        db,
+        params[0],
       );
 
       if (user == null) {
