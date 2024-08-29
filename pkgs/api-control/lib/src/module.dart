@@ -10,7 +10,8 @@ class JsonModule {
     required this.data,
   });
 
-  List<String> get imports => data.containsKey('imports') ? data['imports'] : [];
+  List<String> get imports =>
+      data.containsKey('imports') ? data['imports'] : [];
 
   static Future<JsonModule> load(String p) async {
     final str = await File(p).readAsString();

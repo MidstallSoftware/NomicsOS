@@ -14,6 +14,7 @@ class Configuration {
   final bool? _hotReload;
   final String? _basePath;
   final Endpoint? _pgsqlEndpoint;
+  final ConnectionSettings? _pgsqlSettings;
 
   const Configuration({
     InternetAddress? address,
@@ -21,19 +22,23 @@ class Configuration {
     bool? hotReload,
     String? basePath,
     Endpoint? pgsqlEndpoint,
+    ConnectionSettings? pgsqlSettings,
   })  : _address = address,
         _port = port,
         _hotReload = hotReload,
         _basePath = basePath,
-        _pgsqlEndpoint = pgsqlEndpoint;
+        _pgsqlEndpoint = pgsqlEndpoint,
+        _pgsqlSettings = pgsqlSettings;
 
   InternetAddress get address =>
-      _address ??
-      InternetAddress('0.0.0.0', type: InternetAddressType.IPv4);
+      _address ?? InternetAddress('0.0.0.0', type: InternetAddressType.IPv4);
   int get port => _port ?? 8080;
   bool get hotReload => _hotReload ?? canHotReload();
   String get basePath => _basePath ?? '/';
-  Endpoint get pgsqlEndpoint => _pgsqlEndpoint ?? Endpoint(host: 'localhost', database: 'nomics');
+  Endpoint get pgsqlEndpoint =>
+      _pgsqlEndpoint ?? Endpoint(host: 'localhost', database: 'nomics');
+  ConnectionSettings get pgsqlSettings =>
+      _pgsqlSettings ?? ConnectionSettings(sslMode: SslMode.disable);
 
   static Configuration fromArgs(List<String> args) {
     const defaults = const Configuration();
@@ -45,11 +50,13 @@ class Configuration {
           help: 'Sets the port to listen on',
           defaultsTo: defaults.port.toString())
       ..addOption('base-path',
-          help: 'Sets the base path',
-          defaultsTo: defaults.basePath)
+          help: 'Sets the base path', defaultsTo: defaults.basePath)
       ..addOption('pgsql-host',
           help: 'Sets the PostgresQL host',
           defaultsTo: defaults.pgsqlEndpoint.host)
+      ..addOption('pgsql-port',
+          help: 'Sets the PostgresQL port',
+          defaultsTo: defaults.pgsqlEndpoint.port.toString())
       ..addOption('pgsql-database',
           help: 'Sets the PostgresQL database',
           defaultsTo: defaults.pgsqlEndpoint.database)
@@ -98,6 +105,12 @@ class Configuration {
     final arg_pgsqlUsername = results.option('pgsql-username');
     final arg_pgsqlPassword = results.option('pgsql-password');
 
+    int? v_pgsqlPort = null;
+    final arg_pgsqlPort = results.option('pgsql-port');
+    if (arg_pgsqlPort != null) {
+      v_pgsqlPort = int.parse(arg_pgsqlPort);
+    }
+
     return Configuration(
       address: v_address,
       port: v_port,
@@ -108,6 +121,7 @@ class Configuration {
         database: arg_pgsqlDatabse ?? defaults.pgsqlEndpoint.database,
         username: arg_pgsqlUsername ?? defaults.pgsqlEndpoint.username,
         password: arg_pgsqlPassword ?? defaults.pgsqlEndpoint.password,
+        port: v_pgsqlPort ?? defaults.pgsqlEndpoint.port,
       ),
     );
   }

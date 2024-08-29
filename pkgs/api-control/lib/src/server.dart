@@ -2,7 +2,10 @@ import 'dart:convert';
 import 'dart:io' as io;
 
 import 'config.dart';
+import 'db.dart';
+import 'routes/user/login.dart';
 
+import 'package:path/path.dart' as path;
 import 'package:posix/posix.dart';
 import 'package:shelf_cors_headers/shelf_cors_headers.dart';
 import 'package:shelf_router/shelf_router.dart';
@@ -11,14 +14,14 @@ import 'package:shelf/shelf_io.dart' as shelf_io;
 
 Future<io.HttpServer> createServer(Configuration config) async {
   var app = Router();
+  var db = await DatabaseContext.create(config.pgsqlEndpoint,
+      settings: config.pgsqlSettings);
 
-  app.get(config.basePath, (req) {
-    return Response.ok(json.encode({
-      'data': 'AAAA',
-    }), headers: {
-      'Content-Type': 'application/json',
-    });
-  });
+  app.post(
+      path.posix.join(config.basePath, 'user', 'login'),
+      createUserLoginRoute(
+        db: db,
+      ));
 
   var handler = const Pipeline()
       .addMiddleware(logRequests())
