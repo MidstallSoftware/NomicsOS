@@ -65,7 +65,10 @@ class Configuration {
           defaultsTo: defaults.pgsqlEndpoint.username)
       ..addOption('pgsql-password',
           help: 'Sets the PostgresQL password',
-          defaultsTo: defaults.pgsqlEndpoint.password);
+          defaultsTo: defaults.pgsqlEndpoint.password)
+      ..addFlag('pgsql-socket',
+          help: 'Specify that the PostgresQL host is a socket',
+          defaultsTo: defaults.pgsqlEndpoint.isUnixSocket);
 
     if (canHotReload()) {
       parser.addFlag('hot-reload',
@@ -122,6 +125,7 @@ class Configuration {
         username: arg_pgsqlUsername ?? defaults.pgsqlEndpoint.username,
         password: arg_pgsqlPassword ?? defaults.pgsqlEndpoint.password,
         port: v_pgsqlPort ?? defaults.pgsqlEndpoint.port,
+        isUnixSocket: results.flag('pgsql-socket'),
       ),
     );
   }

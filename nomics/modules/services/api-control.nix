@@ -1,6 +1,15 @@
 { config, pkgs, lib, ... }:
 let
   cfg = config.nomics.services.api-control;
+
+  cmdArgs = [
+    "--address"
+    "/var/lib/nomics-api-control.sock"
+    "--pgsql-socket"
+    "--pgsql-host"
+    "/var/run/postgresql/.s.PGSQL.${toString config.services.postgresql.settings.port}"
+    "--pgsql-username nomics"
+  ];
 in
 {
   config = {
@@ -12,14 +21,14 @@ in
       preStart = ''
         ${pkgs.coreutils}/bin/rm -f /var/lib/nomics-api-control.sock
       '';
-      serviceConfig.ExecStart = "${lib.getExe pkgs.nomics.api-control.default} --address /var/lib/nomics-api-control.sock --pgsql-username nomics";
+      serviceConfig.ExecStart = "${lib.getExe pkgs.nomics.api-control.default} ${toString cmdArgs}";
     };
 
     services = {
       nginx.virtualHosts."${config.nomics.services.web-client.hostname}".locations."/api" = {
         proxyPass = "http://unix:/var/lib/nomics-api-control.sock";
         extraConfig = ''
-          rewrite /api(.*) /$1 break;
+          rewrite /api/(.*) /$1 break;
           proxy_redirect off;
           proxy_set_header Host $host;
         '';
@@ -31,6 +40,9 @@ in
           name = "nomics";
           ensureDBOwnership = true;
         }];
+        authentication = ''
+          local nomics nomics trust
+        '';
       };
     };
   };
