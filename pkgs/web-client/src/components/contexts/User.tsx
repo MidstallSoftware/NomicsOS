@@ -1,13 +1,18 @@
 import { createContext, ReactNode, useContext, useReducer } from 'react'
+import User from '../../types/user'
 
 type AuthAction = {
-  type: 'SIGN_IN'
+  type: 'SIGN_IN',
+  payload: {
+    user: User,
+  },
 } | {
   type: 'SIGN_OUT'
 }
 
 type AuthState = {
-  state: 'SIGNED_IN'
+  state: 'SIGNED_IN',
+  user: User,
 } | {
   state: 'SIGNED_OUT'
 } | {
@@ -18,7 +23,8 @@ const AuthReducer = (_: AuthState, action: AuthAction): AuthState => {
   switch (action.type) {
     case 'SIGN_IN':
       return {
-        state: 'SIGNED_IN'
+        state: 'SIGNED_IN',
+        user: action.payload.user,
       };
     case 'SIGN_OUT':
       return {
@@ -57,9 +63,10 @@ export const useAuthState = () => {
 export const useSignIn = () => {
   const {dispatch} = useContext(AuthContext)
   return {
-    signIn: () => {
+    signIn: (user: User) => {
       dispatch({
-        type: 'SIGN_IN'
+        type: 'SIGN_IN',
+        payload: { user },
       })
     }
   }
