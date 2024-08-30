@@ -52,6 +52,14 @@ Future<io.HttpServer> createServer(Configuration config) async {
                 'Content-Type': 'application/json',
               }));
 
+  app.all(
+      path.posix.join(config.basePath, 'option-pages.json'),
+      (req) async => Response.ok(
+              await io.File(config.optionPagesJson).readAsString(),
+              headers: {
+                'Content-Type': 'application/json',
+              }));
+
   app.get(
       path.posix.join(config.basePath, 'system', 'status'),
       const Pipeline()

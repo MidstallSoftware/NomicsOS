@@ -30,6 +30,13 @@ in
   };
 
   config = {
+    nomics.options.pages = [
+      {
+        id = "users";
+        displayName = "Users";
+      }
+    ];
+
     users.users = lib.listToAttrs (
       lib.map (
         {

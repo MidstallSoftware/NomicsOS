@@ -17,6 +17,7 @@ class Configuration {
   final ConnectionSettings? _pgsqlSettings;
   final String? _rootJsonModule;
   final String optionsJson;
+  final String optionPagesJson;
 
   const Configuration({
     InternetAddress? address,
@@ -27,6 +28,7 @@ class Configuration {
     ConnectionSettings? pgsqlSettings,
     String? rootJsonModule,
     required this.optionsJson,
+    required this.optionPagesJson,
   })  : _address = address,
         _port = port,
         _hotReload = hotReload,
@@ -47,7 +49,7 @@ class Configuration {
   String get rootJsonModule => _rootJsonModule ?? '/etc/nixos/config.json';
 
   static Configuration fromArgs(List<String> args) {
-    const defaults = const Configuration(optionsJson: '');
+    const defaults = const Configuration(optionsJson: '', optionPagesJson: '');
     var parser = ArgParser()
       ..addOption('address',
           help: 'Sets the address to listen on',
@@ -80,6 +82,9 @@ class Configuration {
           defaultsTo: defaults.rootJsonModule)
       ..addOption('options-json',
           help: 'Sets the path to the options.json for Nomics',
+          mandatory: true)
+      ..addOption('option-pages-json',
+          help: 'Sets the path to the option-pages.json for Nomics',
           mandatory: true);
 
     if (canHotReload()) {
@@ -130,6 +135,10 @@ class Configuration {
       throw new Exception('--options-json argument must be set');
     }
 
+    if (results.option('option-pages-json') == null) {
+      throw new Exception('--option-pages-json argument must be set');
+    }
+
     return Configuration(
       address: v_address,
       port: v_port,
@@ -146,6 +155,7 @@ class Configuration {
       rootJsonModule:
           results.option('root-json-module') ?? defaults.rootJsonModule,
       optionsJson: results.option('options-json')!,
+      optionPagesJson: results.option('option-pages-json')!,
     );
   }
 }

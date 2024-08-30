@@ -12,6 +12,8 @@ let
     "nomics"
     "--options-json"
     config.system.build.nomics-options
+    "--option-pages-json"
+    config.system.build.nomics-option-pages
   ];
 in
 {
