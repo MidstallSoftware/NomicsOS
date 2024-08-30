@@ -5,6 +5,8 @@ import 'config.dart';
 import 'db.dart';
 import 'module.dart';
 import 'entities/user.dart';
+import 'middleware/with_auth.dart';
+import 'routes/system/status.dart';
 import 'routes/user/login.dart';
 
 import 'package:path/path.dart' as path;
@@ -40,11 +42,25 @@ Future<io.HttpServer> createServer(Configuration config) async {
 
   await modules.setValues<List>(r'$.users', users);
 
+  app.all(
+      path.posix.join(config.basePath, 'options.json'),
+      (req) async => Response.ok(
+              await io.File(config.optionsJson).readAsString(),
+              headers: {
+                'Content-Type': 'application/json',
+              }));
+
+  app.get(
+      path.posix.join(config.basePath, 'system', 'status'),
+      const Pipeline()
+          .addMiddleware(withAuth(db: db))
+          .addHandler(createSystemStatusRoute()));
+
   app.post(
       path.posix.join(config.basePath, 'user', 'login'),
-      createUserLoginRoute(
-        db: db,
-      ));
+      const Pipeline()
+          .addMiddleware(withAuth(db: db))
+          .addHandler(createUserLoginRoute()));
 
   var handler = const Pipeline()
       .addMiddleware(logRequests())

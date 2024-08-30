@@ -8,7 +8,10 @@ let
     "--pgsql-socket"
     "--pgsql-host"
     "/var/run/postgresql/.s.PGSQL.${toString config.services.postgresql.settings.port}"
-    "--pgsql-username nomics"
+    "--pgsql-username"
+    "nomics"
+    "--options-json"
+    config.system.build.nomics-options
   ];
 in
 {

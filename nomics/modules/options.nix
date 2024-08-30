@@ -25,7 +25,9 @@
                 visible = if (opt ? visible && opt.visible == "shallow") then true else opt.visible or true;
                 readOnly = opt.readOnly or false;
                 type = opt.type.description or "unspecified";
-                pageId = opt.pageId or null;
+                pageId = opt.pageId or "general";
+                isToplevel = opt.isToplevel or true;
+                childOf = opt.childOf or null;
               }
               // lib.optionalAttrs (opt ? example) {
                 example = builtins.addErrorContext "while evaluating the example of option `${name}`" (
@@ -46,9 +48,15 @@
                 ss = opt.type.getSubOptions opt.loc;
               in
               if ss != { } then
-                lib.map (opt: opt // { pageId = if (opt.pageId == null) then docOption.pageId else opt.pageId; }) (
-                  optionAttrSetToDocList' opt.loc ss
-                )
+                lib.map (
+                  opt:
+                  opt
+                  // {
+                    pageId = if (opt.pageId == null) then docOption.pageId else opt.pageId;
+                    childOf = if (opt.childOf == null) then docOption.name else opt.childOf;
+                    isToplevel = false;
+                  }
+                ) (optionAttrSetToDocList' opt.loc ss)
               else
                 [ ];
             subOptionsVisible = docOption.visible && opt.visible or null != "shallow";
