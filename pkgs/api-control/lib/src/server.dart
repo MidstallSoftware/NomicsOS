@@ -7,6 +7,8 @@ import 'module.dart';
 import 'entities/user.dart';
 import 'middleware/with_auth.dart';
 import 'routes/system/status.dart';
+import 'routes/settings/get.dart';
+import 'routes/settings/set.dart';
 import 'routes/user/login.dart';
 
 import 'package:path/path.dart' as path;
@@ -55,6 +57,18 @@ Future<io.HttpServer> createServer(Configuration config) async {
       const Pipeline()
           .addMiddleware(withAuth(db: db))
           .addHandler(createSystemStatusRoute()));
+
+  app.post(
+      path.posix.join(config.basePath, 'settings', 'get'),
+      const Pipeline()
+          .addMiddleware(withAuth(db: db))
+          .addHandler(createSettingsGetRoute(modules: modules)));
+
+  app.post(
+      path.posix.join(config.basePath, 'settings', 'set'),
+      const Pipeline()
+          .addMiddleware(withAuth(db: db))
+          .addHandler(createSettingsSetRoute(modules: modules)));
 
   app.post(
       path.posix.join(config.basePath, 'user', 'login'),
