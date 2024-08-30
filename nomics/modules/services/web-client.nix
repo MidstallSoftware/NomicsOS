@@ -20,7 +20,7 @@ in
   options = {
     nomics.services.web-client = {
       ssl = {
-        enable = lib.mkEnableOption "Use SSL on the Nomics Web Client server.";
+        enable = lib.mkEnableOption "SSL on the Nomics Web Client server";
         port = lib.mkOption {
           type = with lib.types; port;
           default = 443;
@@ -28,11 +28,11 @@ in
         };
       };
       ipv4 = {
-        enable = lib.mkEnableOption "Enable listening on IPv4" // { default = true; };
+        enable = lib.mkEnableOption "listen on IPv4 for Nomics Web Client" // { default = true; };
         addr = lib.mkOption {
           type = with lib.types; str;
           default = "0.0.0.0";
-          description = "IP address.";
+          description = "The IPv4 address for Nomics Web Client to listen on.";
         };
         port = lib.mkOption {
           type = with lib.types; port;
@@ -40,7 +40,7 @@ in
           description = "Port to use for HTTP for the Nomics Web Client server.";
         };
         ssl = {
-          enable = lib.mkEnableOption "Use SSL on IPv4.";
+          enable = lib.mkEnableOption "SSL on IPv4 for Nomics Web Client";
           port = lib.mkOption {
             type = with lib.types; port;
             default = cfg.ssl.port;
@@ -50,11 +50,11 @@ in
         };
       };
       ipv6 = {
-        enable = lib.mkEnableOption "Enable listening on IPv6" // { default = true; };
+        enable = lib.mkEnableOption "listen on IPv6 for Nomics Web Client" // { default = true; };
         addr = lib.mkOption {
           type = with lib.types; str;
           default = "::0";
-          description = "IP address.";
+          description = "The IPv6 address for Nomics Web Client to listen on.";
         };
         port = lib.mkOption {
           type = with lib.types; port;
@@ -62,7 +62,7 @@ in
           description = "Port to use for HTTP for the Nomics Web Client server.";
         };
         ssl = {
-          enable = lib.mkEnableOption "Use SSL on IPv6.";
+          enable = lib.mkEnableOption "SSL on IPv6 for Nomics Web Client";
           port = lib.mkOption {
             type = with lib.types; port;
             default = cfg.ssl.port;
@@ -80,7 +80,7 @@ in
       iface = lib.mkOption {
         type = with lib.types; nullOr str;
         default = null;
-        description = "Specific network interface to listen on";
+        description = "Specific interface to have Nomics Web Client listen on.";
       };
     };
   };

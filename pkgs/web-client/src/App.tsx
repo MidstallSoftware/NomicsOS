@@ -35,7 +35,7 @@ const router = createBrowserRouter([
         loader: ({ params }) =>
           fetch(`${API_URI}/options.json`)
             .then(r => r.json())
-            .then((opts) => Object.fromEntries(Object.entries(opts as OptionsMap).filter((entry) => entry[1].pageId == params.pageId))),
+            .then((opts) => Object.fromEntries(Object.entries(opts as OptionsMap).filter((entry) => (entry[1].pageId ?? 'general') == params.pageId))),
         element: (
           <AuthRequired>
             <SettingsPage />

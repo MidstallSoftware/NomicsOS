@@ -25,7 +25,8 @@
                 visible = if (opt ? visible && opt.visible == "shallow") then true else opt.visible or true;
                 readOnly = opt.readOnly or false;
                 type = opt.type.description or "unspecified";
-                pageId = opt.pageId or "general";
+                label = opt.label or docOption.description;
+                pageId = opt.pageId or null;
                 isToplevel = opt.isToplevel or true;
                 childOf = opt.childOf or null;
               }
@@ -66,7 +67,11 @@
           [ docOption ] ++ lib.optionals subOptionsVisible subOptions
         ) (lib.collect lib.isOption options);
 
-      rawOpts = optionAttrSetToDocList { inherit (options) nomics; };
+      rawOpts = optionAttrSetToDocList {
+        nomics = options.nomics // {
+          hostname = options.networking.hostName;
+        };
+      };
       filteredOpts = lib.filter (opt: opt.visible && !opt.internal) rawOpts;
       optionsList = lib.flip map filteredOpts (
         opt:

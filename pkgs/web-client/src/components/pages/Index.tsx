@@ -13,9 +13,9 @@ const IndexPage = () => {
     const int = setInterval(() => {
       fetch(`${API_URI}/system/status`, {
         headers: {
-          'Authorization': `Basic ${auth.user.authKey}`,
+          'Authorization': `Basic ${'user' in auth ? auth.user.authKey : null}`,
         },
-      }).then(async (r)=> await r.json() as SystemStats).then((data) => {
+      }).then(async (r) => await r.json() as SystemStats).then((data) => {
         setLastState(currState);
         setCurrState(data);
       });

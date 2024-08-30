@@ -10,6 +10,7 @@ export interface Option {
   loc: string[],
   pageId?: string,
   childOf?: string,
+  children?: OptionsMap,
   isToplevel: boolean,
   readOnly: boolean,
   type: string,
