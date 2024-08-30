@@ -13,23 +13,19 @@ import 'package:json_path/json_path.dart';
 
 dynamic _setByPath(dynamic input, String p, dynamic value) {
   if (p.length == 0) return value;
+  p = p.replaceAll('["', '.').replaceAll('"]', '').replaceAll('[\'', '.').replaceAll('\']', '').replaceFirst('\$.', '');
 
-  final i = p.indexOf(']') > p.indexOf('.') ? p.indexOf('[') : p.indexOf('.');
-  final left = p.substring(0, i);
-  final right = p.substring(i);
+  final parts = p.split('.');
 
-  if (input is Map<String, dynamic>) {
-    if (left == '\$') {
-      return _setByPath(input, right, value);
+  if (input is Map<String, dynamic> || input is Map<dynamic, dynamic>) {
+    final key = parts[0];
+    final rest = parts.skip(1).toList();
+
+    if (rest.length > 0 && !input.containsKey(key)) {
+      input[key] = {};
     }
 
-    var m = input as Map<String, dynamic>;
-    final key = right.substring(1);
-
-    m[key] = _setByPath(
-        m[key],
-        1 + key.length == right.length ? '' : right.substring(1 + key.length),
-        value);
+    input[key] = _setByPath(input[key], rest.join('.'), value);
   }
   return input;
 }

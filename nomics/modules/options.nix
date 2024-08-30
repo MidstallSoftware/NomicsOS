@@ -69,7 +69,9 @@
 
       rawOpts = optionAttrSetToDocList {
         nomics = options.nomics // {
-          hostname = options.networking.hostName;
+          hostname = options.networking.hostName // {
+            loc = [ "nomics" "hostname" ];
+          };
         };
       };
       filteredOpts = lib.filter (opt: opt.visible && !opt.internal) rawOpts;
