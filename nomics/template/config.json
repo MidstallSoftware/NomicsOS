@@ -1,1 +1,1 @@
-{"hostname":"nomics","users":[]}
+{"hostname":"nomics","users":[],"services":{"web-client":{"ipv6":{"enable":true,"ssl":{"enable":false}},"ipv4":{"enable":true}}}}

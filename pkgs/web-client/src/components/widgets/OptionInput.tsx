@@ -65,7 +65,7 @@ const OptionInputString = ({ option }: { option: Option }) => {
           <div className="label">
             <span className="label-text">{option.description}</span>
           </div>
-          <input type="text" className="input input-bordered w-full max-w-xs" value={value} onChange={handleChange} />
+          <input type="text" className="input input-bordered w-full max-w-xs" value={value as string} onChange={handleChange} />
         </label>
       </div>
     </div>
