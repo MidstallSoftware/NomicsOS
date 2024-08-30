@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend, Filler } from 'chart.js'
-import { Chart } from 'react-chartjs-2'
+import { Line } from 'react-chartjs-2'
 import { useAuthState } from '../contexts/User'
 import CpuGague from '../widgets/CpuGague.tsx'
 import { SystemStats } from '../../types/stats.ts'
@@ -43,7 +43,7 @@ const IndexPage = () => {
            <h2 className="card-title">Memory Usage</h2>
             <div className="flex justify-evenly w-full">
               {state.length > 1 ? (
-                <Chart
+                <Line
                   className="border-3 rounded text-white"
                   options={{
                     responsive: true,
@@ -64,15 +64,8 @@ const IndexPage = () => {
                     color: '#ffffff',
                   }}
                   redraw={false}
-                  type='line'
                   data={{
                     datasets: [
-                      {
-                        fill: true,
-                        data: state.map((st) => st.mem.MemFree),
-                        label: 'Free',
-                        backgroundColor: '#ea580c40',
-                      },
                       {
                         fill: true,
                         data: state.map((st) => st.mem.MemAvailable),
