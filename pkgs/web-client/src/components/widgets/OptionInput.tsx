@@ -39,7 +39,7 @@ const OptionInputString = ({ option }: { option: Option }) => {
       .then((value) => {
         setValue(value ?? defaultValue);
       });
-  });
+  }, []);
 
   const handleChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const resp = await fetch(`${API_URI}/settings/set`, {
@@ -91,7 +91,7 @@ const OptionInputBoolean = ({ option }: { option: Option }) => {
       .then((value) => {
         setValue(value ?? defaultValue);
       });
-  });
+  }, []);
 
   const handleChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const resp = await fetch(`${API_URI}/settings/set`, {

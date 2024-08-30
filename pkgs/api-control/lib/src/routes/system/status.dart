@@ -52,11 +52,29 @@ Future<List<Map<String, dynamic>>> _lscpu() async {
   }).toList();
 }
 
+Future<Map<String, dynamic>> _meminfo() async =>
+  Map.fromEntries((await File('/proc/meminfo').readAsString())
+    .split('\n')
+    .where((str) => str.length > 0)
+    .map((line) {
+      final entry = line.split(': ');
+      final key = entry[0].replaceAll('\t', '');
+      dynamic value = entry[1].replaceAll('\t', '').replaceAll(' ', '');
+
+      if (value.endsWith('kB')) {
+        value = int.parse(value.substring(0, value.length - 2)) * 1024;
+      } else {
+        value = int.parse(value);
+      }
+      return MapEntry(key, value);
+    }));
+
 Handler createSystemStatusRoute() => (req) async {
       return Response.ok(
         json.encode({
           'loadavg': await _loadavg(),
           'cpu': await _lscpu(),
+          'mem': await _meminfo(),
         }),
         headers: {
           'Content-Type': 'application/json',

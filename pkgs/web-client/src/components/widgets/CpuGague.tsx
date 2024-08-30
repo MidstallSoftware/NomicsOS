@@ -11,7 +11,7 @@ const CpuGague = ({ last, curr }: { last: CpuStats, curr: CpuStats }) => {
   const usage = 100 - (100 * used / delta);
 
   return (
-    <div className="border-4 border-neutral bg-neutral text-primary radial-progress m-2" style={{ "--value": usage } as CSSProperties} role="progressbar">{usage.toFixed(0)}%</div>
+    <div className="border-4 border-primary bg-primary text-primary-content radial-progress m-2" style={{ "--value": usage } as CSSProperties} role="progressbar">{usage.toFixed(0)}%</div>
   );
 };
 
