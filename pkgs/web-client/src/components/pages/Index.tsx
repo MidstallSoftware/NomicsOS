@@ -48,10 +48,16 @@ const IndexPage = () => {
                   options={{
                     responsive: true,
                     scales: {
+                      x: {
+                        display: false,
+                      },
                       y: {
+                        display: true,
                         max: state.map((st) => st.mem.MemTotal)[state.length - 1],
-                        title: {
+                        ticks: {
                           color: '#ffffff',
+                          stepSize: 1024 * 1024 * 1024,
+                          callback: (_, i) => `${i} GB`,
                         },
                       },
                     },
