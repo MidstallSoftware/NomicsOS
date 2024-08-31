@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:path/path.dart' as path;
 import 'package:shelf/shelf.dart';
 import 'package:system_info2/system_info2.dart';
 
@@ -69,12 +70,30 @@ Future<Map<String, dynamic>> _meminfo() async =>
       return MapEntry(key, value);
     }));
 
+Future<List<Map<String, dynamic>>> _netinfo() async {
+  List<Map<String, dynamic>> items = [];
+  await for (var entity in Directory('/sys/class/net').list(recursive: false)) {
+    if (entity is Directory) {
+      final dir = entity as Directory;
+      items.add({
+        'name': path.basename(dir.path),
+        'stats': {
+          'rx': int.parse(await File('${dir.path}/statistics/rx_bytes').readAsString()),
+          'tx': int.parse(await File('${dir.path}/statistics/tx_bytes').readAsString()),
+        },
+      });
+    }
+  }
+  return items;
+}
+
 Handler createSystemStatusRoute() => (req) async {
       return Response.ok(
         json.encode({
           'loadavg': await _loadavg(),
           'cpu': await _lscpu(),
           'mem': await _meminfo(),
+          'net': await _netinfo(),
         }),
         headers: {
           'Content-Type': 'application/json',
