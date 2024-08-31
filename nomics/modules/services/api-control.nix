@@ -23,6 +23,7 @@ in
       after = [ "networking.target" "postgresql.service" ];
       wantedBy = [ "multi-user.target" ];
       description = "Nomics API Control Server";
+      path = with pkgs; [ git ];
       preStart = ''
         ${pkgs.coreutils}/bin/rm -f /var/lib/nomics-api-control.sock
       '';
