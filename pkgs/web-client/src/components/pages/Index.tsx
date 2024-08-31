@@ -40,7 +40,7 @@ const IndexPage = () => {
     <div className="p-2 space-2 gap-2 grid grid-cols-2">
       <div className="card bg-neutral text-neutral-content shadow-xl">
         <div className="card-body">
-         <h2 className="card-title">CPU Usage</h2>
+          <h2 className="card-title">CPU Usage</h2>
           <div className="grid grid-cols-5 justify-evenly">
             {state.length > 1 ? new Array(state[state.length - 1].cpu.length).fill(0)
               .map((_, i) => <CpuGague last={state[state.length - 2].cpu[i]} curr={state[state.length - 1].cpu[i]} />) : <div className="skeleton h-96 w-96"></div>}

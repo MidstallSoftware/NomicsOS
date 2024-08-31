@@ -47,17 +47,22 @@ Future<List<Map<String, dynamic>>> _lscpu() async {
     }));
 
     final core_key = 'cpu${proc['processor']}';
-    proc['stats'] = pstat.firstWhere((str) => str.startsWith(core_key)).substring(core_key.length + 1).split(' ').map((i) => int.parse(i)).toList();
+    proc['stats'] = pstat
+        .firstWhere((str) => str.startsWith(core_key))
+        .substring(core_key.length + 1)
+        .split(' ')
+        .map((i) => int.parse(i))
+        .toList();
 
     return proc;
   }).toList();
 }
 
 Future<Map<String, dynamic>> _meminfo() async =>
-  Map.fromEntries((await File('/proc/meminfo').readAsString())
-    .split('\n')
-    .where((str) => str.length > 0)
-    .map((line) {
+    Map.fromEntries((await File('/proc/meminfo').readAsString())
+        .split('\n')
+        .where((str) => str.length > 0)
+        .map((line) {
       final entry = line.split(': ');
       final key = entry[0].replaceAll('\t', '');
       dynamic value = entry[1].replaceAll('\t', '').replaceAll(' ', '');
@@ -78,8 +83,10 @@ Future<List<Map<String, dynamic>>> _netinfo() async {
       items.add({
         'name': path.basename(dir.path),
         'stats': {
-          'rx': int.parse(await File('${dir.path}/statistics/rx_bytes').readAsString()),
-          'tx': int.parse(await File('${dir.path}/statistics/tx_bytes').readAsString()),
+          'rx': int.parse(
+              await File('${dir.path}/statistics/rx_bytes').readAsString()),
+          'tx': int.parse(
+              await File('${dir.path}/statistics/tx_bytes').readAsString()),
         },
       });
     }

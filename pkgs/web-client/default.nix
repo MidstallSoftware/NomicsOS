@@ -12,7 +12,7 @@ buildNpmPackage {
   src = path;
   sourceRoot = "source/pkgs/web-client";
 
-  npmDepsHash = "sha256-sOEcnFonDu8B7dGJF5TAnH38He3cyXxz9tUuN6DYXjY=";
+  npmDepsHash = "sha256-l9D1DHP4vX99UnsdiUMIWb3l2kYGrOiFBPvjQelpQiY=";
 
   installPhase = ''
     npm run build

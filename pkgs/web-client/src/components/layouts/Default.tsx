@@ -32,6 +32,7 @@ const NavMenu = () => {
           ))}
         </ul>
       </li>
+      <li><button onClick={() => nav('/gen')}>Generations</button></li>
     </ul>
   );
 };

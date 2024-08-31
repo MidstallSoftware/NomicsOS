@@ -13,7 +13,12 @@ import 'package:json_path/json_path.dart';
 
 dynamic _setByPath(dynamic input, String p, dynamic value) {
   if (p.length == 0) return value;
-  p = p.replaceAll('["', '.').replaceAll('"]', '').replaceAll('[\'', '.').replaceAll('\']', '').replaceFirst('\$.', '');
+  p = p
+      .replaceAll('["', '.')
+      .replaceAll('"]', '')
+      .replaceAll('[\'', '.')
+      .replaceAll('\']', '')
+      .replaceFirst('\$.', '');
 
   final parts = p.split('.');
 

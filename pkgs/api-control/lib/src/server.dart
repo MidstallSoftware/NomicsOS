@@ -6,6 +6,7 @@ import 'db.dart';
 import 'module.dart';
 import 'entities/user.dart';
 import 'middleware/with_auth.dart';
+import 'routes/gen/list.dart';
 import 'routes/system/status.dart';
 import 'routes/settings/get.dart';
 import 'routes/settings/set.dart';
@@ -59,6 +60,12 @@ Future<io.HttpServer> createServer(Configuration config) async {
               headers: {
                 'Content-Type': 'application/json',
               }));
+
+  app.get(
+      path.posix.join(config.basePath, 'gen', 'list'),
+      const Pipeline().addMiddleware(withAuth(db: db)).addHandler(
+          createGenListRoute(
+              flakeDir: path.canonicalize(path.absolute(config.flakeDir)))));
 
   app.get(
       path.posix.join(config.basePath, 'system', 'status'),

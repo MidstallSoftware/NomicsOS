@@ -16,6 +16,7 @@ class Configuration {
   final Endpoint? _pgsqlEndpoint;
   final ConnectionSettings? _pgsqlSettings;
   final String? _rootJsonModule;
+  final String? _flakeDir;
   final String optionsJson;
   final String optionPagesJson;
 
@@ -27,6 +28,7 @@ class Configuration {
     Endpoint? pgsqlEndpoint,
     ConnectionSettings? pgsqlSettings,
     String? rootJsonModule,
+    String? flakeDir,
     required this.optionsJson,
     required this.optionPagesJson,
   })  : _address = address,
@@ -35,7 +37,8 @@ class Configuration {
         _basePath = basePath,
         _pgsqlEndpoint = pgsqlEndpoint,
         _pgsqlSettings = pgsqlSettings,
-        _rootJsonModule = rootJsonModule;
+        _rootJsonModule = rootJsonModule,
+        _flakeDir = flakeDir;
 
   InternetAddress get address =>
       _address ?? InternetAddress('0.0.0.0', type: InternetAddressType.IPv4);
@@ -47,6 +50,7 @@ class Configuration {
   ConnectionSettings get pgsqlSettings =>
       _pgsqlSettings ?? ConnectionSettings(sslMode: SslMode.disable);
   String get rootJsonModule => _rootJsonModule ?? '/etc/nixos/config.json';
+  String get flakeDir => _flakeDir ?? '/etc/nixos';
 
   static Configuration fromArgs(List<String> args) {
     const defaults = const Configuration(optionsJson: '', optionPagesJson: '');
@@ -80,9 +84,11 @@ class Configuration {
       ..addOption('root-json-module',
           help: 'Sets the root JSON module to manage config',
           defaultsTo: defaults.rootJsonModule)
+      ..addOption('flake-dir',
+          help: 'Sets the directory to use for the NixOS Config',
+          defaultsTo: defaults.flakeDir)
       ..addOption('options-json',
-          help: 'Sets the path to the options.json for Nomics',
-          mandatory: true)
+          help: 'Sets the path to the options.json for Nomics', mandatory: true)
       ..addOption('option-pages-json',
           help: 'Sets the path to the option-pages.json for Nomics',
           mandatory: true);
@@ -152,6 +158,7 @@ class Configuration {
         port: v_pgsqlPort ?? defaults.pgsqlEndpoint.port,
         isUnixSocket: results.flag('pgsql-socket'),
       ),
+      flakeDir: results.option('flake-dir') ?? defaults.flakeDir,
       rootJsonModule:
           results.option('root-json-module') ?? defaults.rootJsonModule,
       optionsJson: results.option('options-json')!,

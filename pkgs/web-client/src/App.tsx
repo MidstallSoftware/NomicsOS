@@ -11,6 +11,7 @@ import './App.css'
 const IndexPage = lazy(() => import('./components/pages/Index.tsx'));
 const LogInPage = lazy(() => import('./components/pages/LogIn.tsx'));
 const SettingsPage = lazy(() => import('./components/pages/Settings.tsx'));
+const GenerationsPage = lazy(() => import('./components/pages/Generations.tsx'));
 const E404Page = lazy(() => import('./components/pages/404.tsx'));
 
 const router = createBrowserRouter([
@@ -39,6 +40,14 @@ const router = createBrowserRouter([
         element: (
           <AuthRequired>
             <SettingsPage />
+          </AuthRequired>
+        ),
+      },
+      {
+        path: '/gen',
+        element: (
+          <AuthRequired>
+            <GenerationsPage />
           </AuthRequired>
         ),
       },
