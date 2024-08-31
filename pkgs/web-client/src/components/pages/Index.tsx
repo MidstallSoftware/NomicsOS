@@ -1,12 +1,9 @@
 import { useState, useEffect } from 'react'
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend, Filler } from 'chart.js'
-import { Line } from 'react-chartjs-2'
 import { useAuthState } from '../contexts/User'
 import CpuGague from '../widgets/CpuGague.tsx'
+import Graph from '../widgets/Graph.tsx'
 import { SystemStats } from '../../types/stats.ts'
 import { API_URI } from '../../config.ts'
-
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend, Filler);
 
 const IndexPage = () => {
   const { auth } = useAuthState();
@@ -43,10 +40,8 @@ const IndexPage = () => {
            <h2 className="card-title">Memory Usage</h2>
             <div className="flex justify-evenly w-full">
               {state.length > 1 ? (
-                <Line
-                  className="border-3 rounded text-white"
+                <Graph
                   options={{
-                    responsive: true,
                     scales: {
                       x: {
                         display: false,
@@ -55,13 +50,11 @@ const IndexPage = () => {
                         display: true,
                         max: state.map((st) => st.mem.MemTotal)[state.length - 1],
                         ticks: {
-                          color: '#ffffff',
                           stepSize: 1024 * 1024 * 1024,
                           callback: (_, i) => `${i} GB`,
                         },
                       },
                     },
-                    color: '#ffffff',
                   }}
                   redraw={false}
                   data={{
