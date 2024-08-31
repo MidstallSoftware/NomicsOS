@@ -6,7 +6,7 @@ import { FlakeLockNodeInput, FlakeLockNodeRoot, Generation, GenerationInfo } fro
 const GenerationsPage = () => {
   const { auth } = useAuthState();
   const [ gens, setGens ] = useState({} as Map<string, Generation>);
-  const [ genInfo, setGenInfo ] = useState<GenerationInfo>(null);
+  const [ genInfo, setGenInfo ] = useState<GenerationInfo | null>(null);
 
   useEffect(() => {
     fetch(`${API_URI}/gen/list`, {
@@ -68,7 +68,6 @@ const GenerationsPage = () => {
               <h2 className="text-neutral-content font-bold text-lg">Flake Inputs</h2>
               <ul>
                 {Object.entries((genInfo.metadata.locks.nodes[genInfo.metadata.locks.root] as FlakeLockNodeRoot).inputs).map(([ input, key ]) => {
-                  console.log(key, input, genInfo.metadata.locks);
                   const node = genInfo.metadata.locks.nodes[key] as FlakeLockNodeInput;
                   return (
                     <li key={input} className="space-x-1">

@@ -40,7 +40,9 @@ export interface FlakeMeta {
   lastModified: number,
   locked: FlakeLock,
   locks: {
-    nodes: Map<string, FlakeLockNode>,
+    nodes: {
+      [key: string]: FlakeLockNode,
+    },
     root: string,
     version: number,
   },
