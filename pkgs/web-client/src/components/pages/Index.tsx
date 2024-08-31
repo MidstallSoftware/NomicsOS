@@ -16,7 +16,20 @@ const IndexPage = () => {
           'Authorization': `Basic ${'user' in auth ? auth.user.authKey : null}`,
         },
       }).then(async (r) => await r.json() as SystemStats).then((data) => {
-        setState(state.splice(0, 5).concat([ data ]));
+        const newState = state.splice(0, 5).concat([ data ]);
+        setState(newState.map((st, i) => ({
+          ...st,
+          net: st.net.map((netdev, x) => {
+            const prev = i > 0 ? newState[i - 1].net[x].stats : { rx: 0, tx: 0 };
+            return {
+              ...netdev,
+              stats: {
+                rx: Math.abs(netdev.stats.rx - prev.rx),
+                tx: Math.abs(netdev.stats.tx - prev.tx),
+              },
+            };
+          }),
+        })));
       });
     }, 1000);
 
