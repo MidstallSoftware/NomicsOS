@@ -67,4 +67,5 @@ export interface GenerationInfo {
   nixVersion: string,
   branch: string,
   metadata: FlakeMeta,
+  configName: string,
 }

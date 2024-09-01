@@ -63,9 +63,10 @@ const GenerationsPage = () => {
                 <button className="btn join-item">Commit</button>
                 <button className="btn join-item">Apply</button>
               </div>
-              <p>Nix: {genInfo.nixVersion}</p>
-              <p>Branch: {genInfo.branch}</p>
-              <h2 className="text-neutral-content font-bold text-lg">Flake Inputs</h2>
+              <p><span className="font-bold">Nix</span>: {genInfo.nixVersion}</p>
+              <p><span className="font-bold">Branch</span>: {genInfo.branch}</p>
+              <p><span className="font-bold">Config Name</span>: {genInfo.configName}</p>
+              <h2 className="text-neutral-content font-bold text-lg pt-2">Flake Inputs</h2>
               <ul>
                 {Object.entries((genInfo.metadata.locks.nodes[genInfo.metadata.locks.root] as FlakeLockNodeRoot).inputs).map(([ input, key ]) => {
                   const node = genInfo.metadata.locks.nodes[key] as FlakeLockNodeInput;
