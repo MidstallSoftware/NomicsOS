@@ -8,7 +8,7 @@
   imports = [ "${lib.nomics.nixpkgs}/nixos/modules/virtualisation/qemu-vm.nix" ];
 
   config = {
-    boot.postBootCommands = ''
+    systemd.services.nomics-api-control.preStart = lib.mkAfter ''
       if ! [ -e /etc/nixos/flake.nix ] || ! [ -e /etc/nixos/config.json ]; then
         rm -rf /etc/nixos
         cp -r ${../../template} /etc/nixos
@@ -26,6 +26,16 @@
          )
         } /etc/nixos/config-users.json
         ${lib.getExe pkgs.git} init -b master /etc/nixos
+        pushd /etc/nixos
+        ${lib.getExe pkgs.git} add *
+        GIT_COMMITTER_NAME="root" GIT_COMMITTER_EMAIL="root@localhost" GIT_AUTHOR_NAME="root" GIT_AUTHOR_EMAIL="root@localhost" \
+          ${lib.getExe pkgs.git} commit -a -m "Initial Commit"
+
+        nix flake update --override-input nomics ${../../../.}
+        ${lib.getExe pkgs.git} add flake.lock
+        GIT_COMMITTER_NAME="root" GIT_COMMITTER_EMAIL="root@localhost" GIT_AUTHOR_NAME="root" GIT_AUTHOR_EMAIL="root@localhost" \
+          ${lib.getExe pkgs.git} commit --amend flake.lock --no-edit
+        popd
       fi
     '';
 
@@ -38,6 +48,8 @@
         }
       ];
     };
+
+    users.users.demo.group = "wheel";
 
     virtualisation.qemu.networkingOptions = lib.mkForce [
       "-net nic,netdev=private.0,model=virtio"
