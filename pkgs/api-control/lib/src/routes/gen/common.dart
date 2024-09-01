@@ -7,6 +7,15 @@ String readShaFromContent(String str) {
   return str.substring(i, str.indexOf('\n', i));
 }
 
+DateTime readDateTime(String str) {
+  final a = str.indexOf('>') + 2;
+  final b = str.indexOf(' ', a);
+
+  final time = int.parse(str.substring(a, b));
+  final zone = int.parse(str.substring(b + 1));
+  return DateTime.fromMillisecondsSinceEpoch(time * 1000, isUtc: true).add(Duration(hours: zone));
+}
+
 Future<Map<String, dynamic>?> flakeMeta(String p) async {
   var proc = await Process.run('nix', [
     'flake',
@@ -25,6 +34,7 @@ Future<Map<String, dynamic>?> readCommit(GitDir repo, Commit commit) async {
   if (meta == null) return null;
 
   return {
+    'authorDate': readDateTime(commit.author).toIso8601String(),
     'author': commit.author,
     'committer': commit.committer,
     'content': commit.content,

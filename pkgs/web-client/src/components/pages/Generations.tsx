@@ -8,6 +8,8 @@ const GenerationsPage = () => {
   const [ gens, setGens ] = useState({} as Map<string, Generation>);
   const [ genInfo, setGenInfo ] = useState<GenerationInfo | null>(null);
 
+  const fmtTime = (date: Date) => `${date.getFullYear()}-${date.getMonth()}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}`;
+
   useEffect(() => {
     fetch(`${API_URI}/gen/list`, {
       headers: {
@@ -41,7 +43,8 @@ const GenerationsPage = () => {
                     <div className="card-body">
                       <h2>{sha}</h2>
                       <h2 className="card-title">{gen.message.split('\n')[0]}</h2>
-
+                      <p><span className="font-bold">Author</span>: {gen.author.substring(0, gen.author.indexOf('<') - 1)}</p>
+                      <p><span className="font-bold">Committed</span>: {fmtTime(new Date(gen.authorDate))}</p>
                       <div className="card-actions justify-end">
                         <button className="btn btn-error">Rollback</button>
                       </div>

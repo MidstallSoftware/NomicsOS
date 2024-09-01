@@ -56,6 +56,7 @@ export interface FlakeMeta {
 }
 
 export interface Generation {
+  authorDate: string,
   author: string,
   committer: string,
   content: string,
