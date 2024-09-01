@@ -72,6 +72,7 @@ Future<io.HttpServer> createServer(Configuration config) async {
       path.posix.join(config.basePath, 'gen', 'info'),
       const Pipeline().addMiddleware(withAuth(db: db)).addHandler(
           createGenInfoRoute(
+              modules: modules,
               flakeDir: path.canonicalize(path.absolute(config.flakeDir)))));
 
   app.get(
