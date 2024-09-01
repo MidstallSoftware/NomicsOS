@@ -68,4 +68,5 @@ export interface GenerationInfo {
   branch: string,
   metadata: FlakeMeta,
   configName: string,
+  isClean: boolean,
 }

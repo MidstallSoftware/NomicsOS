@@ -32,6 +32,7 @@ Handler createGenInfoRoute({
           'branch': (await repo.currentBranch()).branchName,
           'metadata': await flakeMeta(repo.path), 
           'configName': '${un.machine}-linux/${un.nodename}',
+          'isClean': await repo.isWorkingTreeClean(),
         }),
         headers: {
           'Content-Type': 'application/json',

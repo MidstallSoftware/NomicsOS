@@ -60,8 +60,8 @@ const GenerationsPage = () => {
             <div>
               <div className="join pb-2">
                 <button className="btn join-item">Update</button>
-                <button className="btn join-item">Commit</button>
-                <button className="btn join-item">Apply</button>
+                <button className="btn join-item" disabled={genInfo != null ? genInfo.isClean : true}>Commit</button>
+                <button className="btn join-item" disabled={genInfo != null ? !genInfo.isClean : true}>Apply</button>
               </div>
               <p><span className="font-bold">Nix</span>: {genInfo.nixVersion}</p>
               <p><span className="font-bold">Branch</span>: {genInfo.branch}</p>
