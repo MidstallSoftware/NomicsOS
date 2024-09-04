@@ -2,9 +2,10 @@
 rec {
   importJSONModule = p: { lib, ... }:
     let
+      dirname = lib.removeSuffix p "${builtins.baseNameOf p}";
       config = lib.importJSON p;
     in {
-      imports = lib.map importJSONModule (config.imports or []);
+      imports = lib.map importJSONModule (lib.map (i: "${dirname}/${i}") (config.imports or []));
 
       config = lib.mkMerge [
         {

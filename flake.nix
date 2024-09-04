@@ -33,25 +33,28 @@
                     systems ? (import imports.systems),
                     modules ? [ ],
                     config ? { },
-                  }:
-                  f.genAttrs (f.map (v: "${v}/${config.hostname}") systems) (
-                    attrName:
-                    let
-                      system = f.removeSuffix "/${config.hostname}" attrName;
-                    in
-                    f.nomicsSystem {
-                      modules = [
-                        (
-                          { lib, ... }:
-                          {
-                            nixpkgs.hostPlatform = system;
-                            networking.hostName = config.hostname;
-                            nomics = lib.removeAttrs config [ "hostname" ];
-                          }
-                        )
-                      ] ++ modules;
-                    }
-                  );
+                  }@args:
+                  let
+                    nomics =
+                      system:
+                      f.nomicsSystem {
+                        modules = [
+                          (f.nomics.os.importJSONModule config)
+                          { nixpkgs.hostPlatform = system; }
+                        ] ++ modules;
+                      };
+                  in
+                  f.genAttrs
+                    (f.map (v: "${v}/${(nomics v).config.networking.hostName}") (
+                      args.systems or (import imports.systems)
+                    ))
+                    (
+                      attrName:
+                      let
+                        system = f.elemAt (f.splitString "/" attrName) 0;
+                      in
+                      nomics system
+                    );
               };
               nomicsSystem =
                 args:
@@ -103,7 +106,7 @@
 
       nixosConfigurations = lib.nomics.genSystems {
         modules = [ ./nomics/modules/virtualisation/qemu-vm.nix ];
-        config.hostname = "qemu-vm";
+        config = builtins.toFile "config.json" (builtins.toJSON { hostname = "qemu-vm"; });
       };
 
       templates.default = {
