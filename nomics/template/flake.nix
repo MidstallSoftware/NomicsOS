@@ -13,7 +13,7 @@
       systems,
     }:
     {
-      nixosConfigurations = nomics.lib.genSystems {
+      nixosConfigurations = nomics.lib.nomics.genSystems {
         systems = import systems;
         modules = [
           { sops.defaultSopsFile = ./secrets.yaml; }

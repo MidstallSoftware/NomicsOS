@@ -23,7 +23,11 @@ in
       after = [ "networking.target" "postgresql.service" ];
       wantedBy = [ "multi-user.target" ];
       description = "Nomics API Control Server";
-      path = [ pkgs.git config.nix.package ];
+      path = [
+        pkgs.git
+        config.nix.package
+        config.system.build.nixos-rebuild
+      ];
       preStart = ''
         ${pkgs.coreutils}/bin/rm -f /var/lib/nomics-api-control.sock
       '';
@@ -35,8 +39,11 @@ in
         proxyPass = "http://unix:/var/lib/nomics-api-control.sock";
         extraConfig = ''
           rewrite /api/(.*) /$1 break;
+          proxy_http_version 1.1;
           proxy_redirect off;
           proxy_set_header Host $host;
+          proxy_set_header Upgrade $http_upgrade;
+          proxy_set_header Connection "upgrade";
         '';
       };
       postgresql = {

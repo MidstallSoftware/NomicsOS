@@ -27,17 +27,19 @@ Handler createGenInfoRoute({
       final repo = await GitDir.fromExisting(flakeDir);
 
       final un = uname();
-      final hostname = modules.getValue<String>(r'$.hostname', defaultValue: un.nodename) ?? un.nodename;
+      final hostname =
+          modules.getValue<String>(r'$.hostname', defaultValue: un.nodename) ??
+              un.nodename;
 
       return Response.ok(
-        json.encode({
-          'nixVersion': await _nixVersion(),
-          'branch': (await repo.currentBranch()).branchName,
-          'metadata': await flakeMeta(repo.path), 
-          'configName': '${un.machine}-linux/${hostname}',
-          'isClean': await repo.isWorkingTreeClean(),
-        }),
-        headers: {
-          'Content-Type': 'application/json',
-        });
+          json.encode({
+            'nixVersion': await _nixVersion(),
+            'branch': (await repo.currentBranch()).branchName,
+            'metadata': await flakeMeta(repo.path),
+            'configName': '${un.machine}-linux/${hostname}',
+            'isClean': await repo.isWorkingTreeClean(),
+          }),
+          headers: {
+            'Content-Type': 'application/json',
+          });
     };

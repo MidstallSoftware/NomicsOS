@@ -13,7 +13,8 @@ DateTime readDateTime(String str) {
 
   final time = int.parse(str.substring(a, b));
   final zone = int.parse(str.substring(b + 1));
-  return DateTime.fromMillisecondsSinceEpoch(time * 1000, isUtc: true).add(Duration(hours: zone));
+  return DateTime.fromMillisecondsSinceEpoch(time * 1000, isUtc: true)
+      .add(Duration(hours: zone));
 }
 
 Future<Map<String, dynamic>?> flakeMeta(String p) async {
@@ -30,7 +31,8 @@ Future<Map<String, dynamic>?> flakeMeta(String p) async {
 }
 
 Future<Map<String, dynamic>?> readCommit(GitDir repo, Commit commit) async {
-  final meta = await flakeMeta('${repo.path}?rev=${readShaFromContent(commit.content)}');
+  final meta =
+      await flakeMeta('${repo.path}?rev=${readShaFromContent(commit.content)}');
   if (meta == null) return null;
 
   return {

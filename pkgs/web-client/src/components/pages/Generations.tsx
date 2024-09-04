@@ -33,9 +33,9 @@ const GenerationsPage = () => {
   const { auth } = useAuthState();
   const [ gens, setGens ] = useState({} as Map<string, Generation>);
   const [ genInfo, setGenInfo ] = useState<GenerationInfo | null>(null);
-  const [ updateError, setUpdateError ] = useState<Error | null>(null);
+  const [ error, setError ] = useState<Error | null>(null);
   const [ nixLog, setNixLog ] = useState<NixLog[]>([]);
-  const [ nixUpdateDone, setNixUpdateDone ] = useState<boolean>(false);
+  const [ nixDone, setNixDone ] = useState<boolean>(false);
 
   const fmtTime = (date: Date) => `${date.getFullYear()}-${date.getMonth()}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}`;
 
@@ -60,15 +60,15 @@ const GenerationsPage = () => {
   }, [auth, gens]);
 
   const handleUpdate = () => {
-    setUpdateError(null);
+    setError(null);
     setNixLog([]);
-    setNixUpdateDone(false);
+    setNixDone(false);
 
-    (document.getElementById('flake-update') as HTMLModalElement).showModal();
+    (document.getElementById('terminal') as HTMLModalElement).showModal();
 
     const authKey = 'user' in auth ? atob(auth.user.authKey ?? '').split(':') : [];
 
-    const url = new URL(`${API_URI}/gen/update`);
+    const url = new URL(`${API_URI.indexOf('/') == 0 ? window.location.origin + API_URI : API_URI}/gen/update`);
     url.username = authKey[0];
     url.password = authKey[1];
 
@@ -77,7 +77,7 @@ const GenerationsPage = () => {
     const log: NixLog[] = [];
 
     ws.onerror = () => {
-      setUpdateError(new Error('Unexpected WebSocket error'));
+      setError(new Error('Unexpected WebSocket error'));
     };
 
     ws.onmessage = (msg) => {
@@ -86,20 +86,54 @@ const GenerationsPage = () => {
     };
 
     ws.onclose = () => {
-      setNixUpdateDone(true);
+      setNixDone(true);
+    };
+  };
+
+  const handleApply = (commitHash?: string) => {
+    setError(null);
+    setNixLog([]);
+    setNixDone(false);
+
+    (document.getElementById('terminal') as HTMLModalElement).showModal();
+
+    const authKey = 'user' in auth ? atob(auth.user.authKey ?? '').split(':') : [];
+
+    const url = new URL(`${API_URI.indexOf('/') == 0 ? window.location.origin + API_URI : API_URI}/gen/apply`);
+    url.username = authKey[0];
+    url.password = authKey[1];
+
+    if (commitHash !== null) {
+      url.searchParams.set('commit', commitHash as string);
+    }
+
+    const ws = new WebSocket(url);
+
+    const log: NixLog[] = [];
+
+    ws.onerror = () => {
+      setError(new Error('Unexpected WebSocket error'));
+    };
+
+    ws.onmessage = (msg) => {
+      log.push(JSON.parse(msg.data) as NixLog);
+      setNixLog(log);
+    };
+
+    ws.onclose = () => {
+      setNixDone(true);
     };
   };
 
   return (
     <div className="p-2 space-2 gap-2 flex">
-      <dialog id="flake-update" className="modal">
+      <dialog id="terminal" className="modal">
         <div className="modal-box">
-          <h3 className="font-bold text-lg pb-2">Update Flake</h3>
-          {updateError !== null ? (
+          {error !== null ? (
             <div className="card bg-error shadow-xl text-error-content">
               <div className="card-body">
-                <h2 className="card-title">{updateError.name}</h2>
-                <p>{updateError.message}</p>
+                <h2 className="card-title">{error.name}</h2>
+                <p>{error.message}</p>
               </div>
             </div>
           ) : null}
@@ -108,9 +142,9 @@ const GenerationsPage = () => {
               <pre key={i} className="text-warning"><code>{log.msg}</code></pre>
             ))}
           </div>
-          {nixUpdateDone ? (
+          {nixDone ? (
             <div className="modal-action">
-              <button className="btn justify-end" onClick={() => (document.getElementById('flake-update') as HTMLModalElement).close()}>
+              <button className="btn justify-end" onClick={() => (document.getElementById('terminal') as HTMLModalElement).close()}>
                 Close
               </button>
             </div>
@@ -131,7 +165,7 @@ const GenerationsPage = () => {
                       <p><span className="font-bold">Author</span>: {gen.author.substring(0, gen.author.indexOf('<') - 1)}</p>
                       <p><span className="font-bold">Committed</span>: {fmtTime(new Date(gen.authorDate))}</p>
                       <div className="card-actions justify-end">
-                        <button className="btn btn-error">Rollback</button>
+                        <button className="btn btn-error" onClick={() => handleApply(sha)}>Rollback</button>
                       </div>
                     </div>
                   </div>
@@ -149,7 +183,7 @@ const GenerationsPage = () => {
               <div className="join pb-2">
                 <button className="btn join-item" onClick={handleUpdate}>Update</button>
                 <button className="btn join-item" disabled={genInfo != null ? genInfo.isClean : true}>Commit</button>
-                <button className="btn join-item" disabled={genInfo != null ? !genInfo.isClean : true}>Apply</button>
+                <button className="btn join-item" onClick={() => handleApply()} disabled={genInfo != null ? !genInfo.isClean : true}>Apply</button>
               </div>
               <p><span className="font-bold">Nix</span>: {genInfo.nixVersion}</p>
               <p><span className="font-bold">Branch</span>: {genInfo.branch}</p>
