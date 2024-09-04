@@ -8,6 +8,7 @@ import 'entities/user.dart';
 import 'middleware/with_auth.dart';
 import 'routes/gen/list.dart';
 import 'routes/gen/info.dart';
+import 'routes/gen/update.dart';
 import 'routes/system/status.dart';
 import 'routes/settings/get.dart';
 import 'routes/settings/set.dart';
@@ -17,6 +18,7 @@ import 'package:path/path.dart' as path;
 import 'package:posix/posix.dart';
 import 'package:shelf_cors_headers/shelf_cors_headers.dart';
 import 'package:shelf_router/shelf_router.dart';
+import 'package:shelf_web_socket/shelf_web_socket.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart' as shelf_io;
 
@@ -74,6 +76,11 @@ Future<io.HttpServer> createServer(Configuration config) async {
           createGenInfoRoute(
               modules: modules,
               flakeDir: path.canonicalize(path.absolute(config.flakeDir)))));
+
+  app.all(
+      path.posix.join(config.basePath, 'gen', 'update'),
+      const Pipeline().addMiddleware(withAuth(db: db)).addHandler(
+          webSocketHandler(createGenUpdateRoute(flakeDir: path.canonicalize(path.absolute(config.flakeDir))))));
 
   app.get(
       path.posix.join(config.basePath, 'system', 'status'),

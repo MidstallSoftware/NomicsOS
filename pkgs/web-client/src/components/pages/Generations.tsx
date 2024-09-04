@@ -3,10 +3,39 @@ import { useAuthState } from '../contexts/User'
 import { API_URI } from '../../config.ts'
 import { FlakeLockNodeInput, FlakeLockNodeRoot, Generation, GenerationInfo } from '../../types/gen.ts'
 
+type HTMLModalElement = HTMLElement & {
+  showModal(): void;
+  close(): void;
+}
+
+type NixLog = {
+  action: 'msg',
+  level: number,
+  msg: string,
+} | {
+  action: 'start',
+  fields: string[],
+  id: number,
+  level: number,
+  parent: number,
+  text: string,
+} | {
+  action: 'result',
+  field: string[],
+  id: number,
+  type: number,
+} | {
+  action: 'stop',
+  id: number,
+}
+
 const GenerationsPage = () => {
   const { auth } = useAuthState();
   const [ gens, setGens ] = useState({} as Map<string, Generation>);
   const [ genInfo, setGenInfo ] = useState<GenerationInfo | null>(null);
+  const [ updateError, setUpdateError ] = useState<Error | null>(null);
+  const [ nixLog, setNixLog ] = useState<NixLog[]>([]);
+  const [ nixUpdateDone, setNixUpdateDone ] = useState<boolean>(false);
 
   const fmtTime = (date: Date) => `${date.getFullYear()}-${date.getMonth()}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}`;
 
@@ -30,8 +59,64 @@ const GenerationsPage = () => {
       });
   }, [auth, gens]);
 
+  const handleUpdate = () => {
+    setUpdateError(null);
+    setNixLog([]);
+    setNixUpdateDone(false);
+
+    (document.getElementById('flake-update') as HTMLModalElement).showModal();
+
+    const authKey = 'user' in auth ? atob(auth.user.authKey ?? '').split(':') : [];
+
+    const url = new URL(`${API_URI}/gen/update`);
+    url.username = authKey[0];
+    url.password = authKey[1];
+
+    const ws = new WebSocket(url);
+
+    const log: NixLog[] = [];
+
+    ws.onerror = () => {
+      setUpdateError(new Error('Unexpected WebSocket error'));
+    };
+
+    ws.onmessage = (msg) => {
+      log.push(JSON.parse(msg.data) as NixLog);
+      setNixLog(log);
+    };
+
+    ws.onclose = () => {
+      setNixUpdateDone(true);
+    };
+  };
+
   return (
     <div className="p-2 space-2 gap-2 flex">
+      <dialog id="flake-update" className="modal">
+        <div className="modal-box">
+          <h3 className="font-bold text-lg pb-2">Update Flake</h3>
+          {updateError !== null ? (
+            <div className="card bg-error shadow-xl text-error-content">
+              <div className="card-body">
+                <h2 className="card-title">{updateError.name}</h2>
+                <p>{updateError.message}</p>
+              </div>
+            </div>
+          ) : null}
+          <div className="mockup-code">
+            {nixLog.filter((log) => log.action == 'msg').map((log, i) => (
+              <pre key={i} className="text-warning"><code>{log.msg}</code></pre>
+            ))}
+          </div>
+          {nixUpdateDone ? (
+            <div className="modal-action">
+              <button className="btn justify-end" onClick={() => (document.getElementById('flake-update') as HTMLModalElement).close()}>
+                Close
+              </button>
+            </div>
+          ) : null}
+        </div>
+      </dialog>
       <div className="card bg-neutral text-neutral-content shadow-xl flex-1">
         <div className="card-body">
           <h2 className="card-title">Generations</h2>
@@ -62,7 +147,7 @@ const GenerationsPage = () => {
           {genInfo != null ? (
             <div>
               <div className="join pb-2">
-                <button className="btn join-item">Update</button>
+                <button className="btn join-item" onClick={handleUpdate}>Update</button>
                 <button className="btn join-item" disabled={genInfo != null ? genInfo.isClean : true}>Commit</button>
                 <button className="btn join-item" disabled={genInfo != null ? !genInfo.isClean : true}>Apply</button>
               </div>

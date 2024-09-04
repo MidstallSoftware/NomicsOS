@@ -19,6 +19,8 @@ dependencies:
   json_path: ^0.7.4
   system_info2: ^4.0.0
   git: ^2.3.0
+  shelf_web_socket: ^2.0.0
+  web_socket_channel: ^3.0.1
 
 executables:
   nomics-api-control: nomics-api-control
