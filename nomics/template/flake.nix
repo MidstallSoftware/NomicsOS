@@ -18,7 +18,7 @@
         modules = [
           { sops.defaultSopsFile = ./secrets.yaml; }
         ];
-        config = nomics.lib.importJSON ./config.json;
+        config = nomics.lib.nomics.os.importJSONModule ./config.json;
       };
     };
 }
