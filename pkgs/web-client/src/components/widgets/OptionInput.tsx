@@ -28,13 +28,10 @@ const OptionInputString = ({ option }: { option: Option }) => {
   const key = genKey(option);
 
   useEffect(() => {
-    fetch(`${API_URI}/settings/get`, {
-      method: 'POST',
+    fetch(`${API_URI}/settings/get?key=${encodeURIComponent(key)}`, {
       headers: {
         'Authorization': `Basic ${'user' in auth ? auth.user.authKey : null}`,
-        'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ key }),
     }).then((resp) => resp.json())
       .then((value) => {
         setValue(value ?? defaultValue);
@@ -42,16 +39,10 @@ const OptionInputString = ({ option }: { option: Option }) => {
   }, [ auth, defaultValue, key ]);
 
   const handleChange = async (e: ChangeEvent<HTMLInputElement>) => {
-    const resp = await fetch(`${API_URI}/settings/set`, {
-      method: 'POST',
+    const resp = await fetch(`${API_URI}/settings/set?key=${encodeURIComponent(key)}&value=${encodeURIComponent(e.target.value)}`, {
       headers: {
         'Authorization': `Basic ${'user' in auth ? auth.user.authKey : null}`,
-        'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        key,
-        value: e.target.value,
-      }),
     });
 
     const value = await resp.json();

@@ -8,7 +8,7 @@
     ./services/web-client.nix
   ];
 
-  environment.systemPackages = with pkgs; [ sops ];
+  environment.systemPackages = with pkgs; [ sops git ];
 
   sops.age = {
     keyFile = "/var/lib/nomics/secret-key.txt";

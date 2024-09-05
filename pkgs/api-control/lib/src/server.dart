@@ -96,13 +96,13 @@ Future<io.HttpServer> createServer(Configuration config) async {
           .addMiddleware(withAuth(db: db))
           .addHandler(createSystemStatusRoute()));
 
-  app.post(
+  app.get(
       path.posix.join(config.basePath, 'settings', 'get'),
       const Pipeline()
           .addMiddleware(withAuth(db: db))
           .addHandler(createSettingsGetRoute(modules: modules)));
 
-  app.post(
+  app.get(
       path.posix.join(config.basePath, 'settings', 'set'),
       const Pipeline()
           .addMiddleware(withAuth(db: db))

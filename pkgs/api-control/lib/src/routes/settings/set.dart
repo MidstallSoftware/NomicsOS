@@ -6,26 +6,11 @@ Handler createSettingsSetRoute({
   required JsonModuleManager modules,
 }) =>
     (req) async {
-      final content_type = req.headers['content-type'] ?? 'application/json';
-      if (content_type != 'application/json') {
-        return Response.badRequest(
-          body: json.encode({
-            'error': 'INVALID_HDR',
-            'message': 'Unsupported Content-Type',
-          }),
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        );
-      }
-
-      final data =
-          json.decode(await req.readAsString()) as Map<String, dynamic>;
-      if (data['key'] == null) {
+      if (req.url.queryParameters['key'] == null) {
         return Response.badRequest(
           body: json.encode({
             'error': 'INVALID_KEY',
-            'message': '"key" is missing from JSON body in the request.',
+            'message': '"key" is missing from the query in the request.',
           }),
           headers: {
             'Content-Type': 'application/json',
@@ -33,11 +18,11 @@ Handler createSettingsSetRoute({
         );
       }
 
-      if (data['value'] == null) {
+      if (req.url.queryParameters['value'] == null) {
         return Response.badRequest(
           body: json.encode({
             'error': 'INVALID_KEY',
-            'message': '"value" is missing from JSON body in the request.',
+            'message': '"value" is missing from the query in the request.',
           }),
           headers: {
             'Content-Type': 'application/json',
@@ -45,8 +30,8 @@ Handler createSettingsSetRoute({
         );
       }
 
-      await modules.setValues(data['key'], data['value']);
-      return Response.ok(json.encode(await modules.getValue(data['key'])),
+      await modules.setValues(req.url.queryParameters['key']!, req.url.queryParameters['value']!);
+      return Response.ok(json.encode(await modules.getValue(req.url.queryParameters['key']!)),
           headers: {
             'Content-Type': 'application/json',
           });
