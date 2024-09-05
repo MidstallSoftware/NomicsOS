@@ -22,6 +22,7 @@ Future<Map<String, dynamic>?> flakeMeta(String p) async {
     'flake',
     'metadata',
     '--json',
+    '--no-write-lock-file',
     p,
   ]);
 

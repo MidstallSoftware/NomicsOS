@@ -20,7 +20,8 @@ in
   config = {
     systemd.services.nomics-api-control = {
       before = [ "nginx.service" ];
-      after = [ "networking.target" "postgresql.service" ];
+      after = [ "networking.target" "network-online.target" "postgresql.service" ];
+      wants = [ "network-online.target" "postgresql.service" ];
       wantedBy = [ "multi-user.target" ];
       description = "Nomics API Control Server";
       path = [

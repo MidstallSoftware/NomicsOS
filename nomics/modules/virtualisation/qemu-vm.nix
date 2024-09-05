@@ -51,12 +51,18 @@
 
     users.users.demo.group = "wheel";
 
-    virtualisation.qemu.networkingOptions = lib.mkForce [
-      "-net nic,netdev=private.0,model=virtio"
-      "-netdev user,id=private.0,net=10.0.2.0/24,hostfwd=tcp::8080-:80,\"$QEMU_NET_OPTS\""
+    virtualisation = {
+      qemu.networkingOptions = lib.mkForce [
+        "-net nic,netdev=private.0,model=virtio"
+        "-netdev user,id=private.0,net=10.0.2.0/24,hostfwd=tcp::8080-:80,\"$QEMU_NET_OPTS\""
 
-      "-net nic,netdev=public.0,model=virtio"
-      "-netdev user,id=public.0,net=10.0.3.0/24,\"$QEMU_NET_OPTS\""
-    ];
+        "-net nic,netdev=public.0,model=virtio"
+        "-netdev user,id=public.0,net=10.0.3.0/24,\"$QEMU_NET_OPTS\""
+      ];
+      graphics = false;
+      mountHostNixStore = false;
+      useNixStoreImage = true;
+      writableStore = true;
+    };
   };
 }
