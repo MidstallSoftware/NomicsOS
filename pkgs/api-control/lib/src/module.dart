@@ -31,6 +31,16 @@ dynamic _setByPath(dynamic input, String p, dynamic value) {
     }
 
     input[key] = _setByPath(input[key], rest.join('.'), value);
+  } else if (input is List<dynamic>) {
+    final key = int.parse(parts[0]);
+    final rest = parts.skip(1).toList();
+
+    if (rest.length > 0 && input.length < key) {
+      input.add(_setByPath({}, rest.join('.'), value));
+      return input;
+    }
+
+    input[key] = _setByPath(input[key], rest.join('.'), value);
   }
   return input;
 }

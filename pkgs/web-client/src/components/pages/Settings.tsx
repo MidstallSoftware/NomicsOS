@@ -15,7 +15,11 @@ const SettingsPage = () => {
     },
   ]));
 
-  return Object.entries(toplevel).map(([ key, opt ]) => <OptionInput key={key} option={opt} />);
+  return (
+    <div className="space-y-2 p-2">
+      {Object.entries(toplevel).map(([ key, opt ]) => <OptionInput key={key} option={opt} />)}
+    </div>
+  );
 };
 
 export default SettingsPage

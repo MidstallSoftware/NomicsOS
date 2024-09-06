@@ -7,6 +7,7 @@ export interface Option {
   declarations: string[],
   default?: OptionDefault,
   description: string,
+  label: string,
   loc: string[],
   pageId?: string,
   childOf?: string,
