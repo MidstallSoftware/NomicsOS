@@ -108,6 +108,12 @@
                   "hostname"
                 ];
               };
+              storage = options.disko.devices // {
+                loc = [
+                  "nomics"
+                  "storage"
+                ];
+              };
             };
           };
           filteredOpts = lib.filter (opt: opt.visible && !opt.internal) rawOpts;

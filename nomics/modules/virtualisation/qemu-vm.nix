@@ -16,7 +16,7 @@
           pkgs.writeText "nomics-config.json" (
             lib.generators.toJSON { } (lib.removeAttrs config.nomics [ "users" ] // {
               hostname = config.networking.hostName;
-              imports = [ "./config-users.json" ];
+              imports = [ "./config-users.json" "./config-storage.json" ];
             })
           )
         } /etc/nixos/config.json
@@ -25,6 +25,11 @@
             lib.generators.toJSON { } { users = config.nomics.users; }
          )
         } /etc/nixos/config-users.json
+        cp ${
+          pkgs.writeText "nomics-config-storage.json" (
+            lib.generators.toJSON { } { storage = lib.filterAttrsRecursive (n: _: !(lib.hasPrefix "_" n)) config.disko.devices; }
+         )
+        } /etc/nixos/config-storage.json
         ${lib.getExe pkgs.git} init -b master /etc/nixos
         pushd /etc/nixos
         ${lib.getExe pkgs.git} add *
@@ -50,6 +55,16 @@
     };
 
     users.users.demo.group = "wheel";
+
+    disko.devices.disk."${config.networking.hostName}" = {
+      device = config.virtualisation.rootDevice;
+      type = "disk";
+      content = {
+        type = "filesystem";
+        format = "ext4";
+        mountpoint = "/";
+      };
+    };
 
     virtualisation = {
       qemu.networkingOptions = lib.mkForce [

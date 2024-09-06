@@ -3,9 +3,20 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    flake-utils.url = "github:numtide/flake-utils";
+    flake-utils = {
+      url = "github:numtide/flake-utils";
+      inputs.systems.follows = "systems";
+    };
     systems.url = "github:nix-systems/default-linux";
-    sops-nix.url = "github:Mic92/sops-nix";
+    sops-nix = {
+      url = "github:Mic92/sops-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.nixpkgs-stable.follows = "nixpkgs";
+    };
+    disko = {
+      url = "github:nix-community/disko";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -15,6 +26,7 @@
       flake-utils,
       systems,
       sops-nix,
+      disko,
     }@imports:
     let
       libVersionInfoOverlay = import ./lib/flake-version-info.nix self;
@@ -60,12 +72,11 @@
                 args:
                 p.nixosSystem (
                   {
-                    baseModules = import ./nomics/modules/module-list.nix { inherit nixpkgs sops-nix; };
+                    baseModules = import ./nomics/modules/module-list.nix { inherit nixpkgs sops-nix disko; };
                     modules = args.modules or [ ] ++ [
                       {
                         nixpkgs.overlays = [
                           self.overlays.default
-                          sops-nix.overlays.default
                         ];
                         nixpkgs.flake.source = lib.mkForce self.outPath;
                       }

@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ config, lib, pkgs, ... }:
 {
   imports = [
     ./options.nix
@@ -19,5 +19,9 @@
   nix.settings.experimental-features = [
     "nix-command"
     "flakes"
+  ];
+
+  boot.loader.grub.devices = lib.mkIf (!(config.system.build ? vm) && builtins.hasAttr config.disko.devices.disk config.networking.hostName) [
+    config.disko.devices.disk."${config.networking.hostName}".device
   ];
 }

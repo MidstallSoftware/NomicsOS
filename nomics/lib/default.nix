@@ -9,10 +9,13 @@ rec {
 
       config = lib.mkMerge [
         {
-          nomics = lib.removeAttrs config [ "hostname" "imports" ];
+          nomics = lib.removeAttrs config [ "hostname" "imports" "storage" ];
         }
         (lib.mkIf (config ? hostname) {
           networking.hostName = config.hostname;
+        })
+        (lib.mkIf (config ? storage) {
+          disko.devices = config.storage;
         })
       ];
     };
