@@ -17,7 +17,10 @@ Handler createGenUpdateRoute({
         '--log-format',
         'internal-json',
         flakeDir,
-      ]);
+      ],
+        environment: {
+          'TERM': 'xterm',
+        });
 
       proc.stderr.listen((ev) {
         String.fromCharCodes(ev)

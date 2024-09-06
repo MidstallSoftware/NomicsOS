@@ -91,7 +91,10 @@
         legacyPackages = pkgs;
 
         packages = lib.mapAttrs (_: v: v.default) packages;
-        devShells = lib.mapAttrs (_: v: v.devShell) packages;
+        devShells = lib.mapAttrs (_: v: v.devShell.overrideAttrs (f: _: {
+          nomicsOptionPages = self.nixosConfigurations."${v.devShell.system}/qemu-vm".config.system.build.nomics-option-pages;
+          nomicsOptions = self.nixosConfigurations."${v.devShell.system}/qemu-vm".config.system.build.nomics-options;
+        })) packages;
       }
     )
     // {

@@ -25,7 +25,10 @@ Handler createGenApplyRoute({
             'internal-json',
             '--flake',
             '${req.url.queryParameters.containsKey('commit') ? '${flakeDir}?rev=${req.url.queryParameters['commit']}' : flakeDir}#${un.machine}-linux/${hostname}',
-          ]);
+          ],
+            environment: {
+              'TERM': 'xterm',
+            });
 
           proc.stderr.listen((ev) {
             String.fromCharCodes(ev)

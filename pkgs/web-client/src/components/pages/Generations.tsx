@@ -142,7 +142,7 @@ const GenerationsPage = () => {
   return (
     <div className="p-2 space-2 gap-2 flex">
       <dialog id="terminal" className="modal">
-        <div className="modal-box">
+        <div className="modal-box max-w-[64em]">
           {error !== null ? (
             <div className="card bg-error shadow-xl text-error-content">
               <div className="card-body">

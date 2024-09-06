@@ -29,13 +29,13 @@ type TerminalCharAttrib = {
 type TerminalInput = TerminalCharAttrib[] | string;
 
 const parseInput = (text: string) => {
-  let value: TerminalInput[] = [];
+  const value: TerminalInput[] = [];
 
   let i = 0;
   let curr = text;
   while ((i = curr.indexOf(CSI)) > -1) {
     if (i > 0) {
-      value = value.concat(curr.substring(0, i).split('\n'));
+      value.push(curr.substring(0, i));
     }
 
     const end = curr.indexOf('m', i);
@@ -71,19 +71,18 @@ const parseInput = (text: string) => {
   }
 
   if (curr.length > 0) {
-    value = value.concat(curr.split('\n'));
+    value.push(curr);
   }
   return value;
 };
 
 const nodesFromInput = (input: TerminalInput[]) => {
-  const nodes: ReactNode[] = [];
+  let lines: ReactNode[][] = [];
 
   let el: TerminalInput | undefined;
   let classNames: string[] = [];
-  let lineNum = 0;
-  while ((el = input.pop()) !== undefined) {
-    // TODO: handle tabs.
+  let hasNewline = false;
+  while ((el = input.shift()) !== undefined) {
     if (el instanceof Array) {
       for (const attrib of el) {
         switch (attrib.type) {
@@ -135,13 +134,37 @@ const nodesFromInput = (input: TerminalInput[]) => {
         }
       }
     } else if (typeof el === 'string') {
-      for (const line of el.split('\n')) {
-        nodes.push(<pre data-prefix={(lineNum + 1).toString()} className={classNames.join(' ')}><code>{line}</code></pre>);
-        lineNum++;
+      const value = (text: string) => <span className={classNames.join(' ')}><code>{text}</code></span>;
+
+      if (!hasNewline && lines.length > 0) {
+        const i = el.indexOf('\n');
+        if (i == -1) {
+          lines[lines.length - 1].push(value(el));
+        } else {
+          if (i > 0) {
+            lines[lines.length - 1].push(el.substring(0, i));
+          }
+
+          const e = el.lastIndexOf('\n');
+          if (e > i && e == el.length - 1) {
+            lines = lines.concat(el.substring(i + 1, e).split('\n').map(value).map((row) => [ row ]));
+          } else if (e == i && e == el.length - 1) {
+            // Do nothing
+          } else {
+            lines = lines.concat(el.substring(i + 1).split('\n').map(value).map((row) => [ row ]));
+          }
+        }
+      } else {
+        lines = lines.concat(el.split('\n').map(value).map((row) => [ row ]));
       }
+
+      hasNewline = el.lastIndexOf('\n') == el.length - 1;
     }
   }
-  return nodes;
+
+  return lines.map((line, i) => (
+    <pre data-prefix={(i + 1).toString()}>{line}</pre>
+  ));
 };
 
 const Terminal = ({ input }: { input: string }) => (
