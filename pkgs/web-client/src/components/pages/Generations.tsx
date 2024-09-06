@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useAuthState } from '../contexts/User'
+import Terminal from '../widgets/Terminal.tsx'
 import { API_URI } from '../../config.ts'
 import { FlakeLockNodeInput, FlakeLockNodeRoot, Generation, GenerationInfo } from '../../types/gen.ts'
 
@@ -137,11 +138,7 @@ const GenerationsPage = () => {
               </div>
             </div>
           ) : null}
-          <div className="mockup-code">
-            {nixLog.filter((log) => log.action == 'msg').map((log, i) => (
-              <pre key={i} className="text-warning"><code>{log.msg}</code></pre>
-            ))}
-          </div>
+          <Terminal input={nixLog.filter((log) => log.action == 'msg').map((log) => log.msg).join('\n')} />
           {nixDone ? (
             <div className="modal-action">
               <button className="btn justify-end" onClick={() => (document.getElementById('terminal') as HTMLModalElement).close()}>
