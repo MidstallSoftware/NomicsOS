@@ -18,7 +18,8 @@ Handler createSettingsGetRoute({
         );
       }
 
-      return Response.ok(json.encode(await modules.getValue(req.url.queryParameters['key']!)),
+      return Response.ok(
+          json.encode(await modules.getValue(req.url.queryParameters['key']!)),
           headers: {
             'Content-Type': 'application/json',
           });

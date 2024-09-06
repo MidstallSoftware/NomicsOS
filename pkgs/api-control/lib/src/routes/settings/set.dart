@@ -30,8 +30,10 @@ Handler createSettingsSetRoute({
         );
       }
 
-      await modules.setValues(req.url.queryParameters['key']!, json.decode(req.url.queryParameters['value']!));
-      return Response.ok(json.encode(await modules.getValue(req.url.queryParameters['key']!)),
+      await modules.setValues(req.url.queryParameters['key']!,
+          json.decode(req.url.queryParameters['value']!));
+      return Response.ok(
+          json.encode(await modules.getValue(req.url.queryParameters['key']!)),
           headers: {
             'Content-Type': 'application/json',
           });

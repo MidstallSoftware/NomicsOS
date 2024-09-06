@@ -37,6 +37,7 @@ const GenerationsPage = () => {
   const [ error, setError ] = useState<Error | null>(null);
   const [ nixLog, setNixLog ] = useState<NixLog[]>([]);
   const [ nixDone, setNixDone ] = useState<boolean>(false);
+  const [ commitTitle, setCommitTitle ] = useState<string>('');
 
   const fmtTime = (date: Date) => `${date.getFullYear()}-${date.getMonth()}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}`;
 
@@ -126,6 +127,18 @@ const GenerationsPage = () => {
     };
   };
 
+  const handleCommit = () => {
+    fetch(`${API_URI}/gen/commit?title=${encodeURIComponent(commitTitle)}`, {
+      headers: {
+        'Authorization': `Basic ${'user' in auth ? auth.user.authKey : null}`,
+      },
+    }).then((resp) => resp.text())
+      .then(() => {
+        setCommitTitle('');
+        (document.getElementById('commit') as HTMLModalElement).close();
+      });
+  };
+
   return (
     <div className="p-2 space-2 gap-2 flex">
       <dialog id="terminal" className="modal">
@@ -146,6 +159,21 @@ const GenerationsPage = () => {
               </button>
             </div>
           ) : null}
+        </div>
+      </dialog>
+      <dialog id="commit" className="modal">
+        <div className="modal-box">
+          <label className="form-control w-full max-w-xs">
+            <div className="label">
+              <span className="label-text">Commit title</span>
+            </div>
+            <input type="text" className="input input-bordered w-full max-w-xs" value={commitTitle} onChange={(e) => setCommitTitle(e.target.value)} />
+            <div className="modal-action">
+              <button className="btn justify-end" onClick={handleCommit}>
+                Commit
+              </button>
+            </div>
+          </label>
         </div>
       </dialog>
       <div className="card bg-neutral text-neutral-content shadow-xl flex-1">
@@ -179,7 +207,9 @@ const GenerationsPage = () => {
             <div>
               <div className="join pb-2">
                 <button className="btn join-item" onClick={handleUpdate}>Update</button>
-                <button className="btn join-item" disabled={genInfo != null ? genInfo.isClean : true}>Commit</button>
+                <button className="btn join-item"
+                  onClick={() => (document.getElementById('commit') as HTMLModalElement).showModal()}
+                  disabled={genInfo != null ? genInfo.isClean : true}>Commit</button>
                 <button className="btn join-item" onClick={() => handleApply()} disabled={genInfo != null ? !genInfo.isClean : true}>Apply</button>
               </div>
               <p><span className="font-bold">Nix</span>: {genInfo.nixVersion}</p>

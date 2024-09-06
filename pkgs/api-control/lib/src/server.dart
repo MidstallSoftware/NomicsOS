@@ -7,6 +7,7 @@ import 'module.dart';
 import 'entities/user.dart';
 import 'middleware/with_auth.dart';
 import 'routes/gen/apply.dart';
+import 'routes/gen/commit.dart';
 import 'routes/gen/list.dart';
 import 'routes/gen/info.dart';
 import 'routes/gen/update.dart';
@@ -68,6 +69,13 @@ Future<io.HttpServer> createServer(Configuration config) async {
       path.posix.join(config.basePath, 'gen', 'apply'),
       const Pipeline().addMiddleware(withAuth(db: db)).addHandler(
           createGenApplyRoute(
+              modules: modules,
+              flakeDir: path.canonicalize(path.absolute(config.flakeDir)))));
+
+  app.get(
+      path.posix.join(config.basePath, 'gen', 'commit'),
+      const Pipeline().addMiddleware(withAuth(db: db)).addHandler(
+          createGenCommitRoute(
               modules: modules,
               flakeDir: path.canonicalize(path.absolute(config.flakeDir)))));
 
