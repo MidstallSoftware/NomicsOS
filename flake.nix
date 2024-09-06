@@ -94,6 +94,12 @@
           (f: p: { inherit lib; })
           self.overlays.default
           sops-nix.overlays.default
+          (f: p: {
+            disko = p.callPackage "${disko}/package.nix" {};
+            disko-install = f.disko.overrideAttrs (_old: {
+              name = "disko-install";
+            });
+          })
         ];
 
         packages = lib.genAttrs pkgs.nomics.__packages (p: pkgs.nomics.${p});
