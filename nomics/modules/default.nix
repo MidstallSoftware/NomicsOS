@@ -21,7 +21,7 @@
     "flakes"
   ];
 
-  boot.loader.grub.devices = lib.mkIf (!(config.system.build ? vm) && builtins.hasAttr config.disko.devices.disk config.networking.hostName) [
+  boot.loader.grub.devices = lib.mkIf (!(config.system.build ? vm) && builtins.hasAttr config.networking.hostName config.disko.devices.disk) [
     config.disko.devices.disk."${config.networking.hostName}".device
   ];
 }
